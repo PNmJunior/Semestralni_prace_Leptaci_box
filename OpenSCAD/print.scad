@@ -1,5 +1,10 @@
-TiskPlochaMaly();
-module TiskPlochaMaly()
+/*
+Tento soubor je popisem komponent pomoci jazyka použivané programem OpenSCAD. https://openscad.org/
+
+*/
+
+TiskNutneMinimum();
+module TiskNutneMinimum()//Rozložení komponent pro tisk na malé ploše. Jsou zde nutné komponenty.
 {
     translate([0,0,0])SenSroub();
     translate([0,57,0])SenHoriz();
@@ -21,8 +26,8 @@ module TiskPlochaMaly()
 }
 
 
-//TiskPlochaVelky();
-module TiskPlochaVelky()
+//TiskVsechnyKomponenty();
+module TiskVsechnyKomponenty()//Rozložení komponent pro tisk na větší ploše. Jsou zde všechny potřebné komponenty pro tvorbu variací komfigurace držáku plošného spoje.
 {
     translate([0,0,0])SenSroub();
     translate([0,60,0])SenHoriz();
@@ -57,7 +62,7 @@ module TiskPlochaVelky()
 }
 
 //SenSroub();
-module SenSroub()
+module SenSroub()//Jde o krabočku, kde bude umístěn malý plošný spoj, na kterém bude infračervený senzor teploty. Kraička je v plánu umýstit a upevnit na "vaničku" a to pomoci stavebnice Merkur.
 {
     xO = 40;
     yO  =20;
@@ -118,10 +123,9 @@ rezerva = 0.5;
 }
 
 
-
-vyskaSen = 2+4+1;
+vyskaSen = 2+4+1;//globalni proměná pro výšku infračerveného senzoru
 //SenHoriz();
-module SenHoriz()
+module SenHoriz()//Jde o krabočku, kde bude umístěn malý plošný spoj, na kterém bude infračervený senzor teploty. Kraička je v plánu upevnit na tyčku vychazejicí z "Nosníku"(Popis níže).
 {
     xO = 20;
     yO  =30;
@@ -167,16 +171,14 @@ module Senzor()
 }
 
 
+//met= zkratka pro mertix sistem
+metVysNosnik= 30;//globalni proměná, který určuje výšku nosníku.
+//globalní proměná, která určuje výšku nástavců přidžujících plošný spoj.
+metVysDrz = metVysNosnik+55+0-5; //vyskaNoisniku + vyska plošiny vdolni poleze + rezerva - 
 
 
-
-
-//met= mertix sistem
-metVysNosnik= 30;
-metVysDrz = metVysNosnik+55+0-5;
-//vyskaNoisniku + vyska plošiny vdolni poleze + rezerva - 
- 
-module KulUchytSt()
+//KulUchytSt();
+module KulUchytSt()//Kulatý nastavec na držení spoje.
 {
 KulUchyt(metVysDrz, 30,1.5,2,9,9);
 }
@@ -195,9 +197,9 @@ module KulUchyt(vyska,vyskaValce , hloubkaVyrez, pocetHranVyrezy,sirkaValce, sir
     }
 }
 
-
+//HranUchytSt();
 //HranUchyt(metVysDrz);
-module HranUchytSt()
+module HranUchytSt()//Hranatý nastavec na držení spoje.
 {
     HranUchyt(metVysDrz);
 }
@@ -218,8 +220,9 @@ module HranUchyt(vyska, sirka = 9)
     }
 }
 
+//Nosnik(3);
 //Nosnik();
-module Nosnik(vyskaRov = 4)
+module Nosnik(vyskaRov = 4)// převod mezi jezdcem, který soustavu pohaní na ose z a následné konstrukce. Je nutné aby byl pevný a odolný a proto to tisknu vicekrát ze dvou pozic a dvou rozdměrů desky.
 {
     deska = 9;
     odDesky = 5;
@@ -263,8 +266,9 @@ module DiryNaDrzak()//přesne naměřeno
     translate([25.2,-40,0]) rotate([0,20,0]) cube([100,100,100]);
 }
 
+
 //Spojka();
-module Spojka()
+module Spojka()//Jde o převodnýk mezi "Nosníkem" a "Nástavci".
 {
     Nastavec(5*5+5,5);
 }
@@ -278,24 +282,25 @@ module Nastavec(vyska,pocetDer,sirka = 9)
     {
         
         OvalnaKrichleCisla([sirka ,sirka ,vyska],1,1,1);
-        translate([0,0,vyska]){
-        for(variable = [-5 : -5: -pocetDer*5])
+        translate([0,0,vyska])
         {
-            if(variable % 10 == 0)
+            for(variable = [-5 : -5: -pocetDer*5])
             {
-                translate([sirka/2,sirka/2,variable]) rotate([0,90,0]) cylinder(h=sirka*2,d = 3,center = true,$fn=10);
-            }
-            else
-            {
-                translate([sirka/2,sirka/2,variable]) rotate([90,0,0]) cylinder(h=sirka*2,d = 3,center = true,$fn=10);
+                if(variable % 10 == 0)
+                {
+                    translate([sirka/2,sirka/2,variable]) rotate([0,90,0]) cylinder(h=sirka*2,d = 3,center = true,$fn=10);
+                }
+                else
+                {
+                    translate([sirka/2,sirka/2,variable]) rotate([90,0,0]) cylinder(h=sirka*2,d = 3,center = true,$fn=10);
+                }
             }
         }
-    }
     }
 }
 
 
-//Systemove Moduly
+//Kód pro vytvoření ovalných kvádrů
 module OvalnaKrichleX(Rozdmery, zakulaceni)
 {
 	union() {
