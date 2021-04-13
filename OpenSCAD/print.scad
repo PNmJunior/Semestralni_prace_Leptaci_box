@@ -1,6 +1,209 @@
-//HranUchyt();
+TiskPlochaMaly();
+module TiskPlochaMaly()
+{
+    translate([0,0,0])SenSroub();
+    translate([0,57,0])SenHoriz();
+    translate([0,90,0])Nosnik();
+    translate([25,60,0]) rotate([90,0,90])Nosnik();
+    
+    translate([90,80,0]) rotate([90,-90,0]){
+    translate([0,0,0]) rotate([0,0,270]) HranUchytSt();
+    translate([0,10,0]) rotate([0,0,270])HranUchytSt();
+    translate([0,20,0]) rotate([0,0,270])HranUchytSt();
+    translate([0,30,0]) rotate([0,0,270])HranUchytSt();
+    }
+    translate([100,95,0]) rotate([0,-90,0]){
+    translate([0,0,0]) rotate([0,0,270]) Spojka();
+    translate([0,10,0]) rotate([0,0,270])Spojka();
+    translate([0,0,35]) rotate([0,0,270])Spojka();
+    translate([0,10,35]) rotate([0,0,270])Spojka();
+    }
+}
 
-module HranUchyt(vyska = 50, sirka = 9)
+
+//TiskPlochaVelky();
+module TiskPlochaVelky()
+{
+    translate([0,0,0])SenSroub();
+    translate([0,60,0])SenHoriz();
+    translate([0,100,0])Nosnik();
+    translate([30,100,0])Nosnik(3);
+    translate([25,60,0]) rotate([90,0,90])Nosnik();
+    
+    translate([140,10,0]) rotate([0,-90,0]){
+    translate([0,0,0])rotate([0,0,270]) KulUchytSt();
+    translate([0,10,0])rotate([0,0,270]) KulUchytSt();
+    translate([0,20,0])rotate([0,0,270]) KulUchytSt();
+    translate([0,30,0])rotate([0,0,270]) KulUchytSt();
+    }
+    translate([140,50,0]) rotate([0,-90,0]){
+    translate([0,0,0]) rotate([0,0,270]) HranUchytSt();
+    translate([0,10,0]) rotate([0,0,270])HranUchytSt();
+    translate([0,20,0]) rotate([0,0,270])HranUchytSt();
+    translate([0,30,0]) rotate([0,0,270])HranUchytSt();
+    }
+    translate([140,90,0]) rotate([0,-90,0]){
+    translate([0,0,0]) rotate([0,0,270]) Spojka();
+    translate([0,10,0]) rotate([0,0,270])Spojka();
+    translate([0,20,0]) rotate([0,0,270])Spojka();
+    translate([0,30,0]) rotate([0,0,270])Spojka();
+    }
+    translate([100,82,0]) rotate([0,-90,0]){
+    translate([0,0,0])  Spojka();
+    translate([0,10,0]) Spojka();
+    translate([0,20,0]) Spojka();
+    translate([0,30,0]) Spojka();
+    }
+}
+
+//SenSroub();
+module SenSroub()
+{
+    xO = 40;
+    yO  =20;
+    zO  = 8;
+    zOp  = 2;
+    hrana = 2;
+    difference()
+    {
+        translate([0,0,0])
+        {
+        SenSroubJazik(xO,yO,zO,zOp,hrana);
+            translate([10,0,0])OvalnaKrichleCisla([xO-10 ,yO ,zO],1,1,1);
+        }
+        translate([0,2,zOp])OvalnaKrichleCisla([xO-hrana ,yO - hrana*2 ,zO-zOp],1,1,1);
+        translate([25,yO/2,0]) cylinder(10, d = 11,center  =true);
+        translate([4,yO/4,0]) cylinder(10, d = 3,center  =true,$fn =20);
+        translate([4,yO/2,0]) cylinder(10, d = 3,center  =true,$fn =20);
+        translate([4,3*yO/4,0]) cylinder(10, d = 3,center  =true,$fn =20);
+        
+    }
+    
+    translate([0,yO,0]) SenSroubJazik(xO,yO,zO,zOp,hrana);
+    translate([0,2* yO-hrana,0]) SenSroubJazikB(xO,yO,zO,zOp,hrana);
+}
+
+module SenSroubJazik(xO,yO,zO,zOp,hrana)
+{
+rezerva = 0.5;
+    difference()
+    {
+        translate([0,0,0])
+        {
+        translate([0,hrana +rezerva ,0])OvalnaKrichleCisla([xO-rezerva-hrana ,yO-((hrana+rezerva)*2) ,zOp],1,1,1);
+        }
+        translate([4,yO/4,0]) cylinder(10, d = 3,center  =true,$fn =20);
+        translate([4,yO/2,0]) cylinder(10, d = 3,center  =true,$fn =20);
+        translate([4,3*yO/4,0]) cylinder(10, d = 3,center  =true,$fn =20);
+        
+    }
+}
+
+module SenSroubJazikB(xO,yO,zO,zOp,hrana)
+{
+rezerva = 0.5;
+    difference()
+    {
+        translate([0,0,0])
+        {
+        //translate([0,hrana +rezerva ,0])OvalnaKrichleCisla([xO-rezerva-hrana ,yO-((hrana+rezerva)*2) ,zOp],1,1,1);
+            translate([0,hrana +rezerva ,0])OvalnaKrichleCisla([15 ,yO-((hrana+rezerva)*2) ,zOp],1,1,1);
+            translate([0,yO/3 ,0])OvalnaKrichleCisla([xO-rezerva-hrana , ,yO/3 ,zOp],1,1,1);
+        }
+        translate([4,yO/4,0]) cylinder(10, d = 3,center  =true,$fn =20);
+        translate([4,yO/2,0]) cylinder(10, d = 3,center  =true,$fn =20);
+        translate([4,3*yO/4,0]) cylinder(10, d = 3,center  =true,$fn =20);
+        
+    }
+}
+
+
+
+vyskaSen = 2+4+1;
+//SenHoriz();
+module SenHoriz()
+{
+    xO = 20;
+    yO  =30;
+    zO  = 22.5;
+    difference()
+   { 
+       
+    OvalnaKrichleCisla([xO ,yO ,zO],1,1,1);
+    translate([xO/2,yO/2,0])Senzor();
+    translate([-2,3,vyskaSen])OvalnaKrichleCisla([xO +4 ,yO - 6 ,zO],1,1,1);
+    translate([xO/2,-1,vyskaSen  + 10,])rotate([90,0,0]) cylinder(yO  +200,d=3,$fn = 10, center = true);
+       translate([3.5,5.5,0]) 
+       {
+           cylinder(30,d = 3, center = true,$fn =20);
+        cylinder(5,d = 5, center = true,$fn =20);
+       }
+       translate([xO-3.5,5.5,0]) 
+       {
+           cylinder(30,d = 3, center = true,$fn =20);
+        cylinder(5,d = 5, center = true,$fn =20);
+       }
+       translate([xO-3.5,yO-5.5,0]) 
+       {
+           cylinder(30,d = 3, center = true,$fn =20);
+        cylinder(5,d = 5, center = true,$fn =20);
+       }
+       translate([3.5,yO-5.5,0]) 
+       {
+           cylinder(30,d = 3, center = true,$fn =20);
+        cylinder(5,d = 5, center = true,$fn =20);
+       }
+
+   }
+}
+
+
+//Senzor();
+module Senzor()
+{
+    translate([0,0,-5]) cylinder(20,d=6,$fn = 10, center = false);
+    translate([0,0,2]) cylinder(20,d=9,$fn = 16, center = false);
+    translate([0,0,2+4]) cylinder(20,d=11,$fn = 16, center = false);
+}
+
+
+
+
+
+
+//met= mertix sistem
+metVysNosnik= 30;
+metVysDrz = metVysNosnik+55+0-5;
+//vyskaNoisniku + vyska plošiny vdolni poleze + rezerva - 
+ 
+module KulUchytSt()
+{
+KulUchyt(metVysDrz, 30,1.5,2,9,9);
+}
+module KulUchyt(vyska,vyskaValce , hloubkaVyrez, pocetHranVyrezy,sirkaValce, sirkaNast = 9)
+{
+    translate([0,0,vyskaValce]) Nastavec(vyska-vyskaValce,5);
+    translate([(sirkaNast)/2,(sirkaNast)/2,0]) difference()
+    {
+        cylinder(vyskaValce + 5,d = sirkaValce, center = false);
+        translate([0,0,hloubkaVyrez+ 0.2])
+        {
+        rotate_extrude(convexity = 10) translate([sirkaValce/2, 0,0])
+            //polygon( points=[[0,0],[1,1],[2,0], [0,0] );
+            circle(r = hloubkaVyrez, $fn = pocetHranVyrezy *2);
+        }
+    }
+}
+
+
+//HranUchyt(metVysDrz);
+module HranUchytSt()
+{
+    HranUchyt(metVysDrz);
+}
+
+
+module HranUchyt(vyska, sirka = 9)
 {
     difference()
     {
@@ -15,21 +218,28 @@ module HranUchyt(vyska = 50, sirka = 9)
     }
 }
 
-Nosnik();
-module Nosnik()
+//Nosnik();
+module Nosnik(vyskaRov = 4)
 {
     deska = 9;
     odDesky = 5;
     velNast = 9;
     sirka = 27;
-    translate([(sirka + velNast)/2,0,0])rotate([0,0,90]) Nastavec(45,6,velNast);
+    translate([(sirka + velNast)/2,0,0])rotate([0,0,90]) Nastavec(30,4,velNast);
     difference()
     {
-         OvalnaKrichleCisla([sirka,velNast+odDesky+deska,4],1,1,1);
+         OvalnaKrichleCisla([sirka,velNast+odDesky+deska,vyskaRov],1,1,1);
          translate([0,velNast+odDesky,0]) DiryNaDrzak();
     }
-    translate([12,9,0]) rotate([0,-30,130]) cube([8,4,15]);
-    translate([18,6,0]) rotate([0,-30,45]) cube([8,4,15]);
+    difference()
+    {
+        translate([0,0,vyskaRov-4 ])
+        {
+    translate([13,9,0]) rotate([0,-30,130]) cube([8,4,15]);
+    translate([17,6,0]) rotate([0,-30,45]) cube([8,4,15]);
+        }
+        translate([0,0,-10])cube([30,30,10]);
+    }
 }
 
 
@@ -53,7 +263,7 @@ module DiryNaDrzak()//přesne naměřeno
     translate([25.2,-40,0]) rotate([0,20,0]) cube([100,100,100]);
 }
 
-
+//Spojka();
 module Spojka()
 {
     Nastavec(5*5+5,5);
