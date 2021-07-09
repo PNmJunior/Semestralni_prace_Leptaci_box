@@ -34,24 +34,19 @@ dtSvetlo svetloB;
 dtSvetlo svetloC;
 dtMotorX motorX;
 dtMotorZ motorZ;
-char motorZnas;
+dtTep tepOkolyD[8];
+dtTep tepNadrzD[8];
+
+char motorZscit;
 byte motorZkrok;
 byte motorZopak;
 const bool motorZMetrix[5][4]= {{1,0,1,0},{0,1,1,0},{0,1,0,1},{1,0,0,1},{0,0,0,0}};
-long motorZtimeKrok = 10;
 long motorZtime;
-
-double tepOkolyD[8];
-double tepNadrzD[8];
-byte tepkrok;
-long tepTime;
 
 void setup() {
   // put your setup code here, to run once:
 Serial.begin(9600);
-Serial.println("Start1");
 mlx.begin(); 
-Serial.println("Start2");
 pinMode(pinOhrevA, OUTPUT);
 pinMode(pinOhrevB, OUTPUT);
 pinMode(pinSvetloA , OUTPUT);
@@ -73,35 +68,10 @@ motorX = 0;
 motorZ = 0;
 motorZkrok=0;
 motorZtime=0;
-tepkrok = 0;
-tepTime = millis();
-Serial.println("Start3");
-
-
-
-/*
-        digitalWrite(pinMotorXdig, 0);
-        digitalWrite(pinMotorXpwm, 1);
-        delay(10000);
-
-                digitalWrite(pinMotorXdig, 1);
-        digitalWrite(pinMotorXpwm, 0);
-        delay(10000);
-                digitalWrite(pinMotorXdig, 0);
-        digitalWrite(pinMotorXpwm, 1);
-        delay(10000);
-
-                digitalWrite(pinMotorXdig, 1);
-        digitalWrite(pinMotorXpwm, 0);
-        delay(10000);
-        Serial.println("Start4");*/
 }
 
 
-
 void loop() {
-  // put your main code here, to run repeatedly:
-  //Serial.println(Serial.available());
   if(Serial.available() >= 6)
   {
     mode = Serial.read();
@@ -111,9 +81,7 @@ void loop() {
     value.setCharAt(2,Serial.read());
     value.setCharAt(3,Serial.read());
     Serial.read();
-    Serial.println(mode);
-    Serial.println(value);
-    //delay(1000);
+
     switch(mode)
     {
       case modOhrevA:
@@ -138,37 +106,34 @@ void loop() {
       MotorZC()  ;
       break; 
       case modTepNadrz:
-      //TepNadrz();
       TepNadrzB();
       break;
       case modTepOkoli:
-      //TepOkoli();
       TepOkoliB();
       break;
       default:
-      Serial.print("eeeee");
+      Serial.print(Problem);
       break;
     }
   }
-  //MotorZrun();
+  MotorZrun();
 }
+
 
 void Ohrev(char mod,dtOhrev *data, int pin)
 {
-  Serial.println("a");
   if(value.charAt(2) == '?')
   {
-    Serial.println("b");
   char c[5];
   sprintf(c, "%c%4d", mod,*data);
   Serial.print(c);
   }
   else {
-    Serial.println("c");Serial.println(value);
   *data = value.toInt();
    analogWrite(pin, *data);
   }
 }
+
 
 void Svetlo(char mod,dtSvetlo *data, int pin)
 {
@@ -178,16 +143,13 @@ void Svetlo(char mod,dtSvetlo *data, int pin)
   sprintf(c, "%c%4d", mod,*data);
   Serial.print(c);
   }
-  else {
+  else 
+  {
   *data = value.toInt();
    analogWrite(pin, *data);
-   //if(value.toInt() == 255){digitalWrite(pin,1);Serial.println("Skdnlkwnlkcn");}
-   //else
-   //{
-   // digitalWrite(pin,0);Serial.println("Skdnlkwnlkcn0");
-   //}
   }
 }
+
 
 void MotorX()
 {
@@ -207,62 +169,26 @@ void MotorX()
       {
         digitalWrite(pinMotorXdig, 0);
         analogWrite(pinMotorXpwm, 0);
-        Serial.println("st");
       }
       else if(motorX > 0)
       {
         digitalWrite(pinMotorXdig, 0);
         analogWrite(pinMotorXpwm, motorX);
-        Serial.println("AA");
       }
       else
       {
         digitalWrite(pinMotorXdig, 1);
         analogWrite(pinMotorXpwm, ~(-motorX));
-        Serial.println("BB");
       }
     }
   }
 }
 
-void MotorXB()
-{
-  if(value.charAt(2) == '?')
-  {
-  char c[5];
-  sprintf(c, "%c%4d", modMotorX,motorX);
-  Serial.print(c);
-  }
-  else
-  {
-    dtMotorX novi = value.toInt();
-    if(novi ==0)
-    {
-              digitalWrite(pinMotorXdig, 0);
-        digitalWrite(pinMotorXpwm, 0);
-    }
-    if(novi == minMotorX)
-    {
-              digitalWrite(pinMotorXdig, 1);
-        digitalWrite(pinMotorXpwm, 0);
-    }
-    if(novi == maxMotorX)
-    {
-              digitalWrite(pinMotorXdig, 0);
-        digitalWrite(pinMotorXpwm, 1);
-    }
-  }
-}
-
-
 
 void TepOkoliB()
 {
   char c[5];
-  int u=(double)(mlx.readAmbientTempC()*100.0);
-  if(u<minTep*100) {u = minTep*100;}
-  if(u>maxTep*100) {u = maxTep*100;}
-  sprintf(c, "%c%4d", modTepOkoli,u);
+  sprintf(c, "%c%4d", modTepOkoli,TepControl(mlx.readAmbientTempC()));
   Serial.print(c);
 }
 
@@ -270,13 +196,19 @@ void TepOkoliB()
 void TepNadrzB()
 {
   char c[5];
-  //  sprintf(c, "%c%4d", modTepNadrz,(int)((double)(mlx.readObjectTempC()*100.0)));
-    int u=(double)(mlx.readObjectTempC()*100.0);
-  if(u<minTep*100) {u = minTep*100;}
-  if(u>maxTep*100) {u = maxTep*100;}
-  sprintf(c, "%c%4d", modTepOkoli,u);
+  sprintf(c, "%c%4d", modTepNadrz,TepControl(mlx.readObjectTempC()));
   Serial.print(c);
 }
+
+
+int TepControl(dtTep a)
+{
+  int u=(double)(a*tepNas);
+  if(u<minTep*tepNas) {u = minTep*tepNas;}
+  if(u>maxTep*tepNas) {u = maxTep*tepNas;}
+  return u;
+}
+
 
 void MotorZC()
 {
@@ -288,185 +220,65 @@ if(value.charAt(2) == '?')
   }
   else 
   {
-  dtMotorZ novi = value.toInt();
-  Serial.println(novi);
-   if(novi == stopMotorZ )
-   {
-    digitalWrite(pinMotorZ1,0);
-    digitalWrite(pinMotorZ2, 0);
-    digitalWrite(pinMotorZ3,0);
-    digitalWrite(pinMotorZ4, 0);
-     
-   }
-  else if(novi == nahorumotorZ)
-  {
-    Serial.print("6265gyuu");
-         for(int i = 0; i <= 32;  i++)
-     {
-
-    digitalWrite(pinMotorZ1, motorZMetrix[i%4][0]);
-    digitalWrite(pinMotorZ2, motorZMetrix[i%4][1]);
-    digitalWrite(pinMotorZ3, motorZMetrix[i%4][2]);
-    digitalWrite(pinMotorZ4, motorZMetrix[i%4][3]);
-    //Serial.print("i");
-    delay(10);
-
-     }
-     Serial.print("p");
-  } 
-  else if(novi == dolumotorZ)
-  {
-           for(int i = 32; i >=0;  i--)
-     {
-
-    digitalWrite(pinMotorZ1, motorZMetrix[i%4][0]);
-    digitalWrite(pinMotorZ2, motorZMetrix[i%4][1]);
-    digitalWrite(pinMotorZ3, motorZMetrix[i%4][2]);
-    digitalWrite(pinMotorZ4, motorZMetrix[i%4][3]);
-    //Serial.print("6");
-    delay(10);
-
-     }
-  }  
-   else if(novi == vibMotorZOn)
-   {
-     motorZkrok = 1;
-     motorZ = vibMotorZOn;
-     motorZtime = millis();
-     motorZnas = 1;
-   }
-       digitalWrite(pinMotorZ1, motorZMetrix[4][0]);
-    digitalWrite(pinMotorZ2, motorZMetrix[4][1]);
-    digitalWrite(pinMotorZ3, motorZMetrix[4][2]);
-    digitalWrite(pinMotorZ4, motorZMetrix[4][3]);
-  }
-}
-
-void MotorZ()
-{
-if(value.charAt(2) == '?')
-  {
-  char c[5];
-  sprintf(c, "%c%4d", modMotorZ,motorZ);
-  Serial.print(c);
-  }
-  else 
-  {
-  dtMotorZ novi = value.toInt();
-  Serial.println(novi);
-   if(novi == stopMotorZ )
-   {
-     motorZ = stopMotorZ;
-     MotorZstop();
-     motorZkrok = 4;
-     
-   }
-  else if(novi == nahorumotorZ)
-  {
-    motorZ = nahorumotorZ;
-    motorZtime = millis();
-    motorZkrok = 0;
-    motorZopak = 100;
-  } 
-  else if(novi == dolumotorZ)
-  {
-    motorZ = dolumotorZ;
-    motorZtime = millis();
-    motorZkrok = 3;
-    Serial.println("jo");
-    Serial.println(motorZkrok);
-    motorZopak = 100;
-  }  
-   else if(novi == vibMotorZOn)
-   {
-     motorZkrok = 0;
-     motorZ = vibMotorZOn;
-     motorZtime = millis();
-     motorZnas = 1;
-   }
+    dtMotorZ novi = value.toInt();
+    if(novi == stopMotorZ )
+    {
+       motorZkrok = 4;
+       motorZ = stopMotorZ;
+       MotorZindex(4);
+    }
+    else if(novi == nahorumotorZ)
+    {
+      for(int i = 0; i <= 32;  i++)
+      {
+        MotorZindex(i%4);
+        delay(10);
+      }
+    } 
+    else if(novi == dolumotorZ)
+    {
+      for(int i = 32; i >=0;  i--)
+      {
+        MotorZindex(i%4);
+        delay(10);
+      }
+    }  
+    else if(novi == vibMotorZOn)
+    {
+       motorZkrok = 0;
+       motorZ = vibMotorZOn;
+       motorZtime = millis();
+       motorZscit = 1;
+    }
+    MotorZindex(4);
   }
 }
 
 
 void MotorZrun()
 {
-
-  if(motorZ != 0 && motorZtime < millis())
+  if(motorZ == vibMotorZOn && motorZtime < millis())
   {
-    digitalWrite(pinMotorZ1, motorZMetrix[motorZkrok][0]);
-    digitalWrite(pinMotorZ2, motorZMetrix[motorZkrok][1]);
-    digitalWrite(pinMotorZ3, motorZMetrix[motorZkrok][2]);
-    digitalWrite(pinMotorZ4, motorZMetrix[motorZkrok][3]);
-
-    //Serial.print( motorZMetrix[motorZkrok][0]);
-    //Serial.print( motorZMetrix[motorZkrok][1]);
-    //Serial.print( motorZMetrix[motorZkrok][2]);
-    //Serial.println( motorZMetrix[motorZkrok][3]);
-    //Serial.println( motorZkrok);
+    MotorZindex(motorZkrok);
     motorZtime = millis() + 10;
-    if(motorZ == nahorumotorZ)
+    if(motorZkrok == 3)
     {
-      motorZkrok++;
-      if(motorZkrok == 3)
-      {
-        if(motorZopak != 0)
-        {
-        motorZkrok = 0;
-        motorZopak --;
-        }
-        else{
-        motorZkrok ++;
-        motorZ = 0;
-        }
-      }
+      motorZscit = -1;
     }
-    else if(motorZ == dolumotorZ)
+    else if(motorZkrok == 0)
     {
-      if(motorZopak != 0)
-      {
-        if(motorZkrok == 1 )
-        {
-          motorZopak --;
-          motorZkrok = 4;
-        }
-        else
-        {
-          motorZkrok--;
-        }
-      }
-      else 
-      {
-        motorZ = 0;
-      }
-
+      motorZscit = 1;
     }
-    else if(motorZ == vibMotorZOn)
-    {
-      if(motorZkrok == 4)
-      {
-        motorZnas = -1;
-      }
-      else if(motorZkrok == 1)
-      {
-        motorZnas = 1;
-      }
-      motorZkrok += motorZnas;
-    }
-    else
-    {
-      motorZkrok = 0;
-    }
+    motorZkrok += motorZscit;
+    
   }
 }
 
 
-
-
-
-void MotorZstop()
+void MotorZindex(int index)
 {
-    digitalWrite(pinMotorZ1, motorZMetrix[4][0]);
-    digitalWrite(pinMotorZ2, motorZMetrix[4][1]);
-    digitalWrite(pinMotorZ3, motorZMetrix[4][2]);
-    digitalWrite(pinMotorZ4, motorZMetrix[4][3]);
+    digitalWrite(pinMotorZ1, motorZMetrix[index][0]);
+    digitalWrite(pinMotorZ2, motorZMetrix[index][1]);
+    digitalWrite(pinMotorZ3, motorZMetrix[index][2]);
+    digitalWrite(pinMotorZ4, motorZMetrix[index][3]);
 }

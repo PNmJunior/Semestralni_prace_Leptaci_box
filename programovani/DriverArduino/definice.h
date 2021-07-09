@@ -12,7 +12,9 @@
 #define dtSvetlo uint8_t
 #define dtMotorX int16_t
 #define dtMotorZ int8_t
-#define dtTep float
+#define dtTep double
+
+#define tepNas 100.0
 
 #define maxTep 99.0
 #define maxMotorX 255
@@ -30,5 +32,8 @@
 #define nahorumotorZ 2
 #define dolumotorZ 1
 
+
+
 #define Dotaz "????"
 #define PrazdnePole "0000"
+#define Problem "eeee"
