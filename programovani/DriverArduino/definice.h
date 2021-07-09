@@ -17,13 +17,16 @@
 #define tepNas 100.0
 
 #define maxTep 99.0
-#define maxMotorX 255
 #define maxSvetlo 255
 #define maxOhrev 255
 #define minTep 20.0
-#define minMotorX -255
 #define minSvetlo 0
 #define minOhrev 0
+
+#define levoSMotorX 1
+#define levoBMotorX 2
+#define pravSMotorX 3
+#define pravBMotorX 4
 
 #define vibMotorZOn 3
 #define stopMotorZ 0
@@ -31,8 +34,6 @@
 
 #define nahorumotorZ 2
 #define dolumotorZ 1
-
-
 
 #define Dotaz "????"
 #define PrazdnePole "0000"

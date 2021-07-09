@@ -100,7 +100,7 @@ void loop() {
       Svetlo(mode,&svetloC,pinSvetloC)  ;
       break;    
       case modMotorX:
-      MotorX()  ;
+      MotorXB()  ;
       break; 
       case modMotorZ:
       MotorZC()  ;
@@ -151,6 +151,47 @@ void Svetlo(char mod,dtSvetlo *data, int pin)
 }
 
 
+void MotorXB()
+{
+  if(value.charAt(2) == '?')
+  {
+  char c[5];
+  sprintf(c, "%c%4d", modMotorX,motorX);
+  Serial.print(c);
+  }
+  else
+  {
+    dtMotorX novi = value.toInt();
+    if(novi == levoSMotorX )
+    {
+    digitalWrite(pinMotorXdig, 0);
+    digitalWrite(pinMotorXpwm, 1);
+    delay(50);
+    }
+    else if(novi == levoBMotorX)
+        {
+    digitalWrite(pinMotorXdig, 0);
+    digitalWrite(pinMotorXpwm, 1);
+    delay(200);
+    }
+    else if(novi == pravSMotorX)
+        {
+    digitalWrite(pinMotorXdig, 1);
+    digitalWrite(pinMotorXpwm, 0);
+    delay(50);
+    }
+    else if(novi == pravBMotorX)
+        {
+    digitalWrite(pinMotorXdig, 1);
+    digitalWrite(pinMotorXpwm, 0);
+    delay(200);
+    }
+    digitalWrite(pinMotorXdig, 0);
+    digitalWrite(pinMotorXpwm, 0);
+  }
+}
+
+/*
 void MotorX()
 {
   if(value.charAt(2) == '?')
@@ -182,7 +223,7 @@ void MotorX()
       }
     }
   }
-}
+}*/
 
 
 void TepOkoliB()
