@@ -58,7 +58,7 @@ pinMode(pinMotorZ1 , OUTPUT);
 pinMode(pinMotorZ2 , OUTPUT);
 pinMode(pinMotorZ3 , OUTPUT);
 pinMode(pinMotorZ4 , OUTPUT);
-
+pinMode(13 , OUTPUT);
 ohrevA = 0;
 ohrevB = 0;
 svetloA = 0;
@@ -166,6 +166,7 @@ void MotorXB()
     {
     digitalWrite(pinMotorXdig, 0);
     digitalWrite(pinMotorXpwm, 1);
+    digitalWrite(13, 1);
     delay(50);
     }
     else if(novi == levoBMotorX)
@@ -188,6 +189,8 @@ void MotorXB()
     }
     digitalWrite(pinMotorXdig, 0);
     digitalWrite(pinMotorXpwm, 0);
+    delay(5000);
+    digitalWrite(13, 0);
   }
 }
 

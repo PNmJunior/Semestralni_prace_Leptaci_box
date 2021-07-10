@@ -18,7 +18,7 @@
 int main(int argc, char ** argv)
 {
 	QApplication a(argc, argv);
-
+	Serial
 	
 
 	QWidget w;
@@ -43,11 +43,13 @@ int main(int argc, char ** argv)
 
 
 	QLabel motorXBoxText("Kontrola motoru X:",&w);
-	QPushButton motorXBoxLeft("<"), motorXBoxStop("Stop"),motorXBoxRight(">");
+	QPushButton motorXBoxLeftB("<<"),motorXBoxLeftS("<"), motorXBoxStop("Stop"),motorXBoxRightS(">"),motorXBoxRightS(">>");
 	motorXBox.addWidget(&motorXBoxText);
-	motorXBox.addWidget(&motorXBoxLeft);
+	motorXBox.addWidget(&motorXBoxLeftB);
+	motorXBox.addWidget(&motorXBoxLeftS);
 	motorXBox.addWidget(&motorXBoxStop);
-	motorXBox.addWidget(&motorXBoxRight);
+	motorXBox.addWidget(&motorXBoxRightS);
+	motorXBox.addWidget(&motorXBoxRightB);
 
 	QLabel motorZBoxText("Kontrola motoru Z:",&w);
 	QPushButton motorZBoxUp("Nahoru"), motorZBoxDown("Dolu"), motorZBoxVibration("Vibrace");

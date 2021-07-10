@@ -9,6 +9,9 @@
 #include <QHBoxLayout>
 #include <QVBoxLayout>
 #include <QSlider>
+#include <QString>
+#include <QByteArray>
+#include <QObject>
 
 #include "definice.h"
 #include "topeniBox.h"
@@ -19,7 +22,8 @@ int main(int argc, char ** argv)
 	QApplication a(argc, argv);
 
 	QList<QSerialPortInfo> seznPort = QSerialPortInfo::availablePorts();
-
+	QSerialPortInfo vyberPort;
+	QSerialPort serPort;
 	QWidget w;
 	QVBoxLayout vbox;
 	QHBoxLayout potrSerialSetBox;//nastaveni portu
@@ -34,9 +38,9 @@ int main(int argc, char ** argv)
 	QPushButton potrSerialSetBoxButAkt("Aktualizovat seznam");
 	QComboBox potrSerialSetBoxCombSeznamPortu(&w);
 	//potrSerialSetBoxCombSeznamPortu.addItems(seznPort);
-	const auto infos = QSerialPortInfo::availablePorts();
-    for (const QSerialPortInfo &info : infos)
-        potrSerialSetBoxCombSeznamPortu.addItem(info.portName());
+	auto infos = QSerialPortInfo::availablePorts();
+    for (QSerialPortInfo &info : infos){
+        potrSerialSetBoxCombSeznamPortu.addItem(info.portName());}
 	QPushButton potrSerialSetBoxButOk("Vyber");
 	potrSerialSetBox.addWidget(&potrSerialSetBoxText);
 	potrSerialSetBox.addWidget(&potrSerialSetBoxButAkt);
@@ -45,7 +49,7 @@ int main(int argc, char ** argv)
 
 
 	QLabel motorXBoxText("Kontrola motoru X:",&w);
-	QPushButton motorXBoxLeftB("<<"),motorXBoxLeftS("<"), motorXBoxStop("Stop"),motorXBoxRightS(">"),motorXBoxRightB(">>");
+	QPushButton motorXBoxLeftB("<<"),motorXBoxLeftS("<"), motorXBoxStop("Stop1234"),motorXBoxRightS(">"),motorXBoxRightB(">>");
 	motorXBox.addWidget(&motorXBoxText);
 	motorXBox.addWidget(&motorXBoxLeftB);
 	motorXBox.addWidget(&motorXBoxLeftS);
@@ -96,6 +100,56 @@ int main(int argc, char ** argv)
 	vbox.addLayout(&topeniBBox);
 	
 	w.setLayout(&vbox);
+
+	QObject::connect(&potrSerialSetBoxButAkt, QPushButton::clicked, [&](){
+		potrSerialSetBoxCombSeznamPortu.clear();
+		infos = QSerialPortInfo::availablePorts();
+    for (QSerialPortInfo &info : infos)
+        potrSerialSetBoxCombSeznamPortu.addItem(info.portName());
+	});
+
+
+	QObject::connect(&potrSerialSetBoxButOk, QPushButton::clicked, [&](){
+		if(potrSerialSetBoxCombSeznamPortu.currentIndex() == -1)
+		{
+			//problem
+		}
+		vyberPort = infos.at( potrSerialSetBoxCombSeznamPortu.currentIndex());
+		serPort.setPort(vyberPort);
+		serPort.open(QIODevice::ReadWrite);
+		serPort.setBaudRate(QSerialPort::Baud9600);
+
+		serPort.setDataBits(QSerialPort::Data8);
+		serPort.setParity(QSerialPort::NoParity);
+		serPort.setStopBits(QSerialPort::OneStop);
+		serPort.setFlowControl(QSerialPort::NoFlowControl);
+		while (!serPort.isOpen())
+		{
+			serPort.open(QIODevice::ReadWrite);
+		}
+		if(!(serPort.isWritable()&&serPort.isOpen()))
+		{
+			//problem
+		}
+	});
+
+	QObject::connect(&motorXBoxLeftS, QPushButton::clicked, [&](){
+		int r = levoSMotorX;
+		QString alfa = QString("%1%2\n").arg((char)modMotorX).arg((int)levoSMotorX,4);
+		motorXBoxText.setText(alfa);
+		QByteArray j = alfa.toUtf8();
+		if(serPort.isOpen())
+		{
+		serPort.write(j);
+		serPort.flush();
+		}
+		else
+		{
+			//problem
+		}
+	});
+
+
 	w.show();
 
 	return a.exec();
