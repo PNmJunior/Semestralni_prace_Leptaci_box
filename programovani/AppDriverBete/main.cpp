@@ -15,6 +15,7 @@
 
 #include "definice.h"
 #include "topeniBox.h"
+#include "protokolKomunikace.h"
 
 
 int main(int argc, char ** argv)
@@ -101,6 +102,8 @@ int main(int argc, char ** argv)
 	
 	w.setLayout(&vbox);
 
+	protokolKomunikace protKom = protokolKomunikace(&serPort,&motorXBoxText);
+
 	QObject::connect(&potrSerialSetBoxButAkt, QPushButton::clicked, [&](){
 		potrSerialSetBoxCombSeznamPortu.clear();
 		infos = QSerialPortInfo::availablePorts();
@@ -134,19 +137,7 @@ int main(int argc, char ** argv)
 	});
 
 	QObject::connect(&motorXBoxLeftS, QPushButton::clicked, [&](){
-		int r = levoSMotorX;
-		QString alfa = QString("%1%2\n").arg((char)modMotorX).arg((int)levoSMotorX,4);
-		motorXBoxText.setText(alfa);
-		QByteArray j = alfa.toUtf8();
-		if(serPort.isOpen())
-		{
-		serPort.write(j);
-		serPort.flush();
-		}
-		else
-		{
-			//problem
-		}
+		protKom.sendMotZleftS();
 	});
 
 
