@@ -35,7 +35,7 @@ int main(int argc, char ** argv)
 	QHBoxLayout topeniABox;//kontrola ohrevu mysly A
 	QHBoxLayout topeniBBox;//kontrola ohrevu mysly B
 
-	QLabel potrSerialSetBoxText("Vyber portu:",&w);
+	QLabel potrSerialSetBoxText("Vyber portu:",&w),potrSerialSetBoxTextStatus("Stav: ",&w),potrSerialSetBoxStatus("Nebyl vybran zadny port.",&w);
 	QPushButton potrSerialSetBoxButAkt("Aktualizovat seznam");
 	QComboBox potrSerialSetBoxCombSeznamPortu(&w);
 	//potrSerialSetBoxCombSeznamPortu.addItems(seznPort);
@@ -47,6 +47,8 @@ int main(int argc, char ** argv)
 	potrSerialSetBox.addWidget(&potrSerialSetBoxButAkt);
 	potrSerialSetBox.addWidget(&potrSerialSetBoxCombSeznamPortu);
 	potrSerialSetBox.addWidget(&potrSerialSetBoxButOk);
+	potrSerialSetBox.addWidget(&potrSerialSetBoxTextStatus);
+	potrSerialSetBox.addWidget(&potrSerialSetBoxStatus);
 
 
 	QLabel motorXBoxText("Kontrola motoru X:",&w);
@@ -59,11 +61,12 @@ int main(int argc, char ** argv)
 	motorXBox.addWidget(&motorXBoxRightB);
 
 	QLabel motorZBoxText("Kontrola motoru Z:",&w);
-	QPushButton motorZBoxUp("Nahoru"), motorZBoxDown("Dolu"), motorZBoxVibration("Vibrace");
+	QPushButton motorZBoxUp("Nahoru"), motorZBoxDown("Dolu"), motorZBoxVibration("Vibrace"),motorZBoxStop("Stop");
 	motorZBox.addWidget(&motorXBoxText);
 	motorZBox.addWidget(&motorZBoxUp);
 	motorZBox.addWidget(&motorZBoxDown);
 	motorZBox.addWidget(&motorZBoxVibration);
+	motorZBox.addWidget(&motorZBoxStop);
 
 	QLabel svetloABoxText("Regulace podsviceni mysky A:",&w);
 	QSlider svetloABoxSlider( Qt::Horizontal,&w);
@@ -102,7 +105,7 @@ int main(int argc, char ** argv)
 	
 	w.setLayout(&vbox);
 
-	protokolKomunikace protKom = protokolKomunikace(&serPort,&motorXBoxText);
+	protokolKomunikace protKom = protokolKomunikace(&serPort,&potrSerialSetBoxStatus);
 
 	QObject::connect(&potrSerialSetBoxButAkt, QPushButton::clicked, [&](){
 		potrSerialSetBoxCombSeznamPortu.clear();
@@ -115,7 +118,7 @@ int main(int argc, char ** argv)
 	QObject::connect(&potrSerialSetBoxButOk, QPushButton::clicked, [&](){
 		if(potrSerialSetBoxCombSeznamPortu.currentIndex() == -1)
 		{
-			//problem
+			potrSerialSetBoxStatus.setText("Zkontroluj pripojeni. Vyber stroj ze seznamu. Zmackni tlacitko.");
 		}
 		vyberPort = infos.at( potrSerialSetBoxCombSeznamPortu.currentIndex());
 		serPort.setPort(vyberPort);
@@ -132,13 +135,43 @@ int main(int argc, char ** argv)
 		}
 		if(!(serPort.isWritable()&&serPort.isOpen()))
 		{
-			//problem
+			protKom.notOpenWrite();
+		}
+		else
+		{
+			QString beta = QString("Komunikace s portem: ")+serPort.portName();
+			potrSerialSetBoxStatus.setText(beta);
 		}
 	});
 
 	QObject::connect(&motorXBoxLeftS, QPushButton::clicked, [&](){
-		protKom.sendMotZleftS();
+		protKom.sendMotX(levoSMotorX);
 	});
+	QObject::connect(&motorXBoxLeftB, QPushButton::clicked, [&](){
+		protKom.sendMotX(levoBMotorX);
+	});
+	QObject::connect(&motorXBoxRightS, QPushButton::clicked, [&](){
+		protKom.sendMotX(pravSMotorX);
+	});
+	QObject::connect(&motorXBoxRightB, QPushButton::clicked, [&](){
+		protKom.sendMotX(pravBMotorX);
+	});
+	QObject::connect(&motorXBoxStop, QPushButton::clicked, [&](){
+		protKom.sendMotX(stopMotorX);
+	});
+	QObject::connect(&motorZBoxStop, QPushButton::clicked, [&](){
+		protKom.sendMotZ(stopMotorZ);
+	});
+	QObject::connect(&motorZBoxUp, QPushButton::clicked, [&](){
+		protKom.sendMotZ(nahorumotorZ);
+	});
+	QObject::connect(&motorZBoxDown, QPushButton::clicked, [&](){
+		protKom.sendMotZ(dolumotorZ);
+	});
+	QObject::connect(&motorZBoxVibration, QPushButton::clicked, [&](){
+		protKom.sendMotZ(vibMotorZOn);
+	});
+
 
 
 	w.show();
