@@ -34,3 +34,6 @@ USB 5V:
 -Arduino 5V
 -Vcc teplomer
 
+
+
+
