@@ -149,7 +149,6 @@ void MotorXB()
     {
     digitalWrite(pinMotorXdig, 0);
     digitalWrite(pinMotorXpwm, 1);
-    digitalWrite(13, 1);
     delay(50);
     }
     else if(novi == levoBMotorX)
@@ -172,8 +171,6 @@ void MotorXB()
     }
     digitalWrite(pinMotorXdig, 0);
     digitalWrite(pinMotorXpwm, 0);
-    delay(5000);
-    digitalWrite(13, 0);
   }
 }
 
@@ -217,7 +214,7 @@ void TepOkoliB()
   /*char c[5];
   sprintf(c, "%c%4d", modTepOkoli,TepControl(mlx.readAmbientTempC()));
   Serial.print(c);*/
-  notSend(modTepNadrz,TepControl(mlx.readAmbientTempC()));
+  notSend(modTepOkoli,TepControl(mlx.readAmbientTempC()));
 }
 
 

@@ -12,6 +12,8 @@
 #include <QString>
 #include <QByteArray>
 #include <QObject>
+#include <QFont>
+#include <QTimer>
 
 #include "definice.h"
 #include "topeniBox.h"
@@ -21,7 +23,8 @@
 int main(int argc, char ** argv)
 {
 	QApplication a(argc, argv);
-
+	QTimer tim1 ;
+	
 	QList<QSerialPortInfo> seznPort = QSerialPortInfo::availablePorts();
 	QSerialPortInfo vyberPort;
 	QSerialPort serPort;
@@ -30,10 +33,16 @@ int main(int argc, char ** argv)
 	QHBoxLayout potrSerialSetBox;//nastaveni portu
 	QHBoxLayout motorXBox;//kontrola motoru X
 	QHBoxLayout motorZBox;//kontrola motoru Z
+	QHBoxLayout miskaABox;//kontrola motoru Z
+	QHBoxLayout miskaBBox;//kontrola motoru Z
 	QHBoxLayout svetloABox;//kontrola osvetleni mysly A
 	QHBoxLayout svetloBBox;//kontrola osvetleni mysly B
+	QHBoxLayout teplotaABox;//kontrola ohrevu mysly A
 	QHBoxLayout topeniABox;//kontrola ohrevu mysly A
 	QHBoxLayout topeniBBox;//kontrola ohrevu mysly B
+	QHBoxLayout teplotaVBox;
+
+	QFont fOhrev = QFont("Arial", 20, QFont::Bold);
 
 	QLabel potrSerialSetBoxText("Vyber portu:",&w),potrSerialSetBoxTextStatus("Stav: ",&w),potrSerialSetBoxStatus("Nebyl vybran zadny port.",&w);
 	QPushButton potrSerialSetBoxButAkt("Aktualizovat seznam");
@@ -42,15 +51,21 @@ int main(int argc, char ** argv)
 	auto infos = QSerialPortInfo::availablePorts();
     for (QSerialPortInfo &info : infos){
         potrSerialSetBoxCombSeznamPortu.addItem(info.portName());}
+
+	dtMotorX mX;
+	dtMotorZ mZ;
+	dtOhrev oA, oB;
+	dtSvetlo sA, sB, sC;
+	dtTep tA, tB;
 	QPushButton potrSerialSetBoxButOk("Vyber");
-	QPushButton potrSerialSetBoxButQuestAll("All ?");
+	QPushButton potrSerialSetBoxButAnswerAll("Aktualizovat vse");
 	potrSerialSetBox.addWidget(&potrSerialSetBoxText);
 	potrSerialSetBox.addWidget(&potrSerialSetBoxButAkt);
 	potrSerialSetBox.addWidget(&potrSerialSetBoxCombSeznamPortu);
 	potrSerialSetBox.addWidget(&potrSerialSetBoxButOk);
 	potrSerialSetBox.addWidget(&potrSerialSetBoxTextStatus);
 	potrSerialSetBox.addWidget(&potrSerialSetBoxStatus);
-	potrSerialSetBox.addWidget(&potrSerialSetBoxButQuestAll);
+	potrSerialSetBox.addWidget(&potrSerialSetBoxButAnswerAll);
 
 
 	QLabel motorXBoxText("Kontrola motoru X:",&w);
@@ -70,20 +85,47 @@ int main(int argc, char ** argv)
 	motorZBox.addWidget(&motorZBoxVibration);
 	motorZBox.addWidget(&motorZBoxStop);
 
-	QLabel svetloABoxText("Regulace podsviceni mysky A:",&w);
+
+QLabel miskaABoxText("Mysky A:",&w);
+QPushButton miskaABoxAnswer("Aktualizace");
+miskaABox.addWidget(&miskaABoxText);
+miskaABox.addWidget(&miskaABoxAnswer);
+
+	QLabel svetloABoxText("Regulace podsviceni",&w);
 	QSlider svetloABoxSlider( Qt::Horizontal,&w);
 	svetloABoxSlider.setMaximum(100);
 	svetloABoxSlider.setMinimum(0);
 	svetloABoxSlider.setPageStep(10);
 	svetloABoxSlider.setSingleStep(10);
 
-	svetloBBox.addWidget(&svetloABoxText);
-	svetloBBox.addWidget(&svetloABoxSlider);
+	svetloABox.addWidget(&svetloABoxText);
+	svetloABox.addWidget(&svetloABoxSlider);
 
+	QLabel teplotaABoxName("Teplota: ",&w), teplotaABoxHodnota("00,00",&w), teplotaABoxJednotka("°C",&w); 
+	teplotaABox.addWidget(&teplotaABoxName);
+	teplotaABox.addWidget(&teplotaABoxHodnota);
+	teplotaABox.addWidget(&teplotaABoxJednotka);
 
+	QLabel topeniABoxText("Topeni: "), topeniABoxStav("Chladne");
+	topeniABoxStav.setFont(fOhrev);
+	QSlider topeniABoxSlider(Qt::Horizontal,&w);
+	topeniABoxSlider.setMaximum(255);
+	topeniABoxSlider.setMinimum(0);
+	topeniABoxSlider.setPageStep(10);
+	topeniABoxSlider.setSingleStep(10);
 
-	QLabel svetloBBoxText("Regulace podsviceni mysky B:",&w);
+	topeniABox.addWidget(&topeniABoxText);
+	topeniABox.addWidget(&topeniABoxSlider);
+	topeniABox.addWidget(&topeniABoxStav);
+
+QLabel miskaBBoxText("Mysky B:",&w);
+QPushButton miskaBBoxAnswer("Aktualizace");
+miskaBBox.addWidget(&miskaBBoxText);
+miskaBBox.addWidget(&miskaBBoxAnswer);
+
+	QLabel svetloBBoxText("Regulace podsviceni",&w);
 	QSlider svetloBBoxSlider( Qt::Horizontal,&w);
+	
 	svetloBBoxSlider.setMaximum(100);
 	svetloBBoxSlider.setMinimum(0);
 	svetloBBoxSlider.setPageStep(10);
@@ -93,13 +135,34 @@ int main(int argc, char ** argv)
 	svetloBBox.addWidget(&svetloBBoxText);
 	svetloBBox.addWidget(&svetloBBoxSlider);
 
+	QLabel topeniBBoxText("Topeni: "), topeniBBoxStav("Chladne");
+	topeniBBoxStav.setFont(fOhrev);
+	QSlider topeniBBoxSlider(Qt::Horizontal,&w);
+	topeniBBoxSlider.setMaximum(255);
+	topeniBBoxSlider.setMinimum(0);
+	topeniBBoxSlider.setPageStep(10);
+	topeniBBoxSlider.setSingleStep(10);
+
+	topeniBBox.addWidget(&topeniBBoxText);
+	topeniBBox.addWidget(&topeniBBoxSlider);
+	topeniBBox.addWidget(&topeniBBoxStav);
+
+	QLabel teplotaVBoxName("Vnejsi teplota: ",&w), teplotaVBoxHodnota("00,00",&w), teplotaVBoxJednotka("°C",&w); 
+	teplotaVBox.addWidget(&teplotaVBoxName);
+	teplotaVBox.addWidget(&teplotaVBoxHodnota);
+	teplotaVBox.addWidget(&teplotaVBoxJednotka);
+
 	vbox.addLayout(&potrSerialSetBox);
 	vbox.addLayout(&motorXBox);
 	vbox.addLayout(&motorZBox);
+	vbox.addLayout(&miskaABox);
 	vbox.addLayout(&svetloABox);
-	vbox.addLayout(&svetloBBox);
+	vbox.addLayout(&teplotaABox);
 	vbox.addLayout(&topeniABox);
+	vbox.addLayout(&miskaBBox);
+	vbox.addLayout(&svetloBBox);
 	vbox.addLayout(&topeniBBox);
+	vbox.addLayout(&teplotaVBox);
 	
 	w.setLayout(&vbox);
 
@@ -139,12 +202,8 @@ int main(int argc, char ** argv)
 		{
 			QString beta = QString("Komunikace s portem: ")+serPort.portName();
 			potrSerialSetBoxStatus.setText(beta);
+			tim1.start(2000);
 		}
-	});
-
-	QObject::connect(&potrSerialSetBoxButQuestAll, QPushButton::clicked, [&](){
-		potrSerialSetBoxStatus.setText(QString(protKom.quest(modSvetloA))) ;
-		//protKom.quest(modSvetloA);
 	});
 	
 	QObject::connect(&motorXBoxLeftS, QPushButton::clicked, [&](){
@@ -176,11 +235,59 @@ int main(int argc, char ** argv)
 	});
 	QObject::connect(&svetloABoxSlider, QSlider::valueChanged, [&](){
 		protKom.sendSvetloProc(modSvetloA,svetloABoxSlider.value());
+		
 	});
 	QObject::connect(&svetloBBoxSlider, QSlider::valueChanged, [&](){
 		protKom.sendSvetloProc(modSvetloB, svetloBBoxSlider.value());
+		
 	});
-
+	QObject::connect(&topeniABoxSlider, QSlider::valueChanged, [&](){
+		protKom.sendOhrev(modOhrevA, topeniABoxSlider.value());
+		miskaABoxAnswer.click();
+	});
+	QObject::connect(&topeniBBoxSlider, QSlider::valueChanged, [&](){
+		protKom.sendOhrev(modOhrevB, topeniBBoxSlider.value());
+		miskaBBoxAnswer.click();
+	});
+	QObject::connect(&miskaABoxAnswer, QPushButton::clicked, [&](){
+		teplotaABoxHodnota.setText(QString::number(protKom.AnswerDouble(modTepNadrz)));
+		int topeni = protKom.AnswerInt(modOhrevA);
+		if (topeni == 0)
+		{
+			topeniABoxStav.setText("Chlazeni");
+		}
+		else
+		{
+			topeniABoxStav.setText("!!!Topime!!!");
+		}
+		//topeniABoxSlider.setValue(topeni);
+		
+	});
+		QObject::connect(&miskaBBoxAnswer, QPushButton::clicked, [&](){
+		//teplomer neobsahuje
+		int topeni = protKom.AnswerInt(modOhrevB);
+		if (topeni == 0)
+		{
+			topeniBBoxStav.setText("Chlazeni");
+		}
+		else
+		{
+			topeniBBoxStav.setText("!!!Topime!!!");
+		}
+		//topeniBBoxSlider.setValue(topeni);
+	});
+	QObject::connect(&potrSerialSetBoxButAnswerAll, QPushButton::clicked, [&](){
+		svetloABoxSlider.setValue(protKom.AnswerSvetlo(modSvetloA));
+		svetloBBoxSlider.setValue(protKom.AnswerSvetlo(modSvetloB));
+		teplotaVBoxHodnota.setText(QString::number(protKom.AnswerDouble(modTepOkoli)));
+		miskaABoxAnswer.click();
+		miskaBBoxAnswer.click();
+	});
+	QObject::connect(&tim1, QTimer::timeout, [&](){
+		teplotaVBoxHodnota.setText(QString::number(protKom.AnswerDouble(modTepOkoli)));
+		miskaABoxAnswer.click();
+		miskaBBoxAnswer.click();
+	});
 
 
 	w.show();

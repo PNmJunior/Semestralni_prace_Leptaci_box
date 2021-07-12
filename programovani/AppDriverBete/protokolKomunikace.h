@@ -22,9 +22,13 @@ public:
     bool sendMotZ(dtMotorZ a);
     bool sendSvetlo(char typ,dtSvetlo val);
     bool sendSvetloProc(char typ, int proc);
+    bool sendOhrev(char typ,int val);
     void send(QByteArray j);
     QByteArray quest(char typ);
-    bool chechAnswer(QByteArray in, char &typ, QString &data);
+    QString Answer( char typ);
+    int AnswerInt(char typ);
+    double AnswerDouble(char typ);
+    int AnswerSvetlo(char typ);
 };
 
 protokolKomunikace::protokolKomunikace(QSerialPort *Ser_p, QLabel *textL)
@@ -83,7 +87,13 @@ bool protokolKomunikace::sendMotZ(dtMotorZ a)
     send(alfa.toUtf8());
     return true;
 }
-
+bool protokolKomunikace::sendOhrev(char typ,int val)
+{
+    if((typ !=modOhrevA && typ != modOhrevB) || val > 255 ){ return false;}
+    QString alfa = QString("%1%2\n").arg((char)typ).arg((int)val,4);
+    send(alfa.toUtf8());
+    return true;
+}
 
 bool protokolKomunikace::sendSvetlo(char typ,dtSvetlo val)
 {
@@ -114,13 +124,13 @@ QByteArray protokolKomunikace::quest(char typ)
 {
     //serP->readAll();
     QString alfa = QString("%1%2\n").arg((char)typ).arg(Dotaz);
-    textLabel->setText("1A");
+    //textLabel->setText("1A");
     send(alfa.toUtf8());
-    textLabel->setText("A2");
+    //textLabel->setText("A2");
     serP->waitForBytesWritten();
-    textLabel->setText("A3");
+    //textLabel->setText("A3");
     serP->waitForReadyRead();
-    textLabel->setText("A4");
+    //textLabel->setText("A4");
     while ((serP->bytesAvailable()<6))
     {
             textLabel->setText("cekam");
@@ -131,16 +141,53 @@ QByteArray protokolKomunikace::quest(char typ)
     return serP->read(6);
 }
 
-bool protokolKomunikace::chechAnswer(QByteArray in, char &typ, QString &data)
+QString protokolKomunikace::Answer(char typ)
 {
-    if(in.length()!=5){return false;}
-    typ = in.at(0);
-    if (typ<modSvetloA|| typ > modTepOkoli)
+    QByteArray in = quest(typ);
+    if (typ != in.at(0))
     {
-        return false;
+        return QString("-1");
     }
-    data = QString(in.mid(1,4));
-    
-    
-    
+    return QString(in.mid(1,4));  
 }
+
+    int protokolKomunikace::AnswerInt(char typ)
+    {
+        return Answer(typ).toInt();
+    }
+    double protokolKomunikace::AnswerDouble(char typ)
+    {
+        return Answer(typ).toDouble() / tepNas;
+    }
+    int protokolKomunikace::AnswerSvetlo(char typ)
+    {
+        int hod = AnswerInt(typ);
+        if (hod == 0|| hod == -1)
+        {
+            return 0;
+        }
+        else if (hod == 255)
+        {
+            return 100;
+        }
+        else if (hod == 1)
+        {
+            return 10;
+        }
+        else 
+        {
+            double vys = 18.0356*qLn(hod + 1);
+            int ret = vys;
+            if (ret > 255)
+            {
+                return 100;
+            }
+            if (ret < 0)
+            {
+                return 0;
+            }
+            return ret;
+        }
+        return 0;
+        
+    }
