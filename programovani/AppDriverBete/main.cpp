@@ -86,10 +86,10 @@ int main(int argc, char ** argv)
 	motorZBox.addWidget(&motorZBoxStop);
 
 
-QLabel miskaABoxText("Mysky A:",&w);
-QPushButton miskaABoxAnswer("Aktualizace");
-miskaABox.addWidget(&miskaABoxText);
-miskaABox.addWidget(&miskaABoxAnswer);
+	QLabel miskaABoxText("Mysky A:",&w);
+	QPushButton miskaABoxAnswer("Aktualizace");
+	miskaABox.addWidget(&miskaABoxText);
+	miskaABox.addWidget(&miskaABoxAnswer);
 
 	QLabel svetloABoxText("Regulace podsviceni",&w);
 	QSlider svetloABoxSlider( Qt::Horizontal,&w);
@@ -118,10 +118,10 @@ miskaABox.addWidget(&miskaABoxAnswer);
 	topeniABox.addWidget(&topeniABoxSlider);
 	topeniABox.addWidget(&topeniABoxStav);
 
-QLabel miskaBBoxText("Mysky B:",&w);
-QPushButton miskaBBoxAnswer("Aktualizace");
-miskaBBox.addWidget(&miskaBBoxText);
-miskaBBox.addWidget(&miskaBBoxAnswer);
+	QLabel miskaBBoxText("Mysky B:",&w);
+	QPushButton miskaBBoxAnswer("Aktualizace");
+	miskaBBox.addWidget(&miskaBBoxText);
+	miskaBBox.addWidget(&miskaBBoxAnswer);
 
 	QLabel svetloBBoxText("Regulace podsviceni",&w);
 	QSlider svetloBBoxSlider( Qt::Horizontal,&w);
@@ -202,7 +202,7 @@ miskaBBox.addWidget(&miskaBBoxAnswer);
 		{
 			QString beta = QString("Komunikace s portem: ")+serPort.portName();
 			potrSerialSetBoxStatus.setText(beta);
-			tim1.start(60000);
+			tim1.start(2000);
 		}
 	});
 	
@@ -252,7 +252,7 @@ miskaBBox.addWidget(&miskaBBoxAnswer);
 	QObject::connect(&miskaABoxAnswer, QPushButton::clicked, [&](){
 		teplotaABoxHodnota.setText(QString::number(protKom.AnswerDouble(modTepNadrz)));
 		int topeni = protKom.AnswerInt(modOhrevA);
-		if (topeni == 0)
+		if (topeni == 0 || topeni == -1)
 		{
 			topeniABoxStav.setText("Chlazeni");
 		}
@@ -266,7 +266,7 @@ miskaBBox.addWidget(&miskaBBoxAnswer);
 		QObject::connect(&miskaBBoxAnswer, QPushButton::clicked, [&](){
 		//teplomer neobsahuje
 		int topeni = protKom.AnswerInt(modOhrevB);
-		if (topeni == 0)
+		if (topeni == 0 || topeni == -1)
 		{
 			topeniBBoxStav.setText("Chlazeni");
 		}
@@ -291,6 +291,7 @@ miskaBBox.addWidget(&miskaBBoxAnswer);
 
 
 	w.show();
+
 
 	return a.exec();
 }
