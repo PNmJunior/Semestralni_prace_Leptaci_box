@@ -4,9 +4,9 @@
 #define modSvetloB 'D'
 #define modSvetloC 'E'
 #define modMotorX 'F'
-#define modMotorZ 'H'
-#define modTepNadrz 'I'
-#define modTepOkoli 'K'
+#define modMotorZ 'G'
+#define modTepNadrz 'H'
+#define modTepOkoli 'I'
 
 #define dtOhrev uint8_t
 #define dtSvetlo uint8_t

@@ -43,12 +43,14 @@ int main(int argc, char ** argv)
     for (QSerialPortInfo &info : infos){
         potrSerialSetBoxCombSeznamPortu.addItem(info.portName());}
 	QPushButton potrSerialSetBoxButOk("Vyber");
+	QPushButton potrSerialSetBoxButQuestAll("All ?");
 	potrSerialSetBox.addWidget(&potrSerialSetBoxText);
 	potrSerialSetBox.addWidget(&potrSerialSetBoxButAkt);
 	potrSerialSetBox.addWidget(&potrSerialSetBoxCombSeznamPortu);
 	potrSerialSetBox.addWidget(&potrSerialSetBoxButOk);
 	potrSerialSetBox.addWidget(&potrSerialSetBoxTextStatus);
 	potrSerialSetBox.addWidget(&potrSerialSetBoxStatus);
+	potrSerialSetBox.addWidget(&potrSerialSetBoxButQuestAll);
 
 
 	QLabel motorXBoxText("Kontrola motoru X:",&w);
@@ -90,10 +92,6 @@ int main(int argc, char ** argv)
 
 	svetloBBox.addWidget(&svetloBBoxText);
 	svetloBBox.addWidget(&svetloBBoxSlider);
-
-
-
-
 
 	vbox.addLayout(&potrSerialSetBox);
 	vbox.addLayout(&motorXBox);
@@ -144,6 +142,11 @@ int main(int argc, char ** argv)
 		}
 	});
 
+	QObject::connect(&potrSerialSetBoxButQuestAll, QPushButton::clicked, [&](){
+		potrSerialSetBoxStatus.setText(QString(protKom.quest(modSvetloA))) ;
+		//protKom.quest(modSvetloA);
+	});
+	
 	QObject::connect(&motorXBoxLeftS, QPushButton::clicked, [&](){
 		protKom.sendMotX(levoSMotorX);
 	});
@@ -170,6 +173,12 @@ int main(int argc, char ** argv)
 	});
 	QObject::connect(&motorZBoxVibration, QPushButton::clicked, [&](){
 		protKom.sendMotZ(vibMotorZOn);
+	});
+	QObject::connect(&svetloABoxSlider, QSlider::valueChanged, [&](){
+		protKom.sendSvetloProc(modSvetloA,svetloABoxSlider.value());
+	});
+	QObject::connect(&svetloBBoxSlider, QSlider::valueChanged, [&](){
+		protKom.sendSvetloProc(modSvetloB, svetloBBoxSlider.value());
 	});
 
 

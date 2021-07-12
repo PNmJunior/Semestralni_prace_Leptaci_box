@@ -122,13 +122,8 @@ void loop() {
 
 void Ohrev(char mod,dtOhrev *data, int pin)
 {
-  if(value.charAt(2) == '?')
+  if(notSend(mod,*data))
   {
-  char c[5];
-  sprintf(c, "%c%4d", mod,*data);
-  Serial.print(c);
-  }
-  else {
   *data = value.toInt();
    analogWrite(pin, *data);
   }
@@ -137,13 +132,7 @@ void Ohrev(char mod,dtOhrev *data, int pin)
 
 void Svetlo(char mod,dtSvetlo *data, int pin)
 {
-  if(value.charAt(2) == '?')
-  {
-  char c[5];
-  sprintf(c, "%c%4d", mod,*data);
-  Serial.print(c);
-  }
-  else 
+  if(notSend(mod,*data))
   {
   *data = value.toInt();
    analogWrite(pin, *data);
@@ -153,13 +142,7 @@ void Svetlo(char mod,dtSvetlo *data, int pin)
 
 void MotorXB()
 {
-  if(value.charAt(2) == '?')
-  {
-  char c[5];
-  sprintf(c, "%c%4d", modMotorX,motorX);
-  Serial.print(c);
-  }
-  else
+  if(notSend(modMotorX,motorX))
   {
     dtMotorX novi = value.toInt();
     if(novi == levoSMotorX )
@@ -231,17 +214,19 @@ void MotorX()
 
 void TepOkoliB()
 {
-  char c[5];
+  /*char c[5];
   sprintf(c, "%c%4d", modTepOkoli,TepControl(mlx.readAmbientTempC()));
-  Serial.print(c);
+  Serial.print(c);*/
+  notSend(modTepNadrz,TepControl(mlx.readAmbientTempC()));
 }
 
 
 void TepNadrzB()
 {
-  char c[5];
+  /*char c[5];
   sprintf(c, "%c%4d", modTepNadrz,TepControl(mlx.readObjectTempC()));
-  Serial.print(c);
+  Serial.print(c);*/
+  notSend(modTepNadrz,TepControl(mlx.readObjectTempC()));
 }
 
 
@@ -256,13 +241,7 @@ int TepControl(dtTep a)
 
 void MotorZC()
 {
-if(value.charAt(2) == '?')
-  {
-  char c[5];
-  sprintf(c, "%c%4d", modMotorZ,motorZ);
-  Serial.print(c);
-  }
-  else 
+  if(notSend(modMotorZ,motorZ))
   {
     dtMotorZ novi = value.toInt();
     if(novi == stopMotorZ )
@@ -325,4 +304,17 @@ void MotorZindex(int index)
     digitalWrite(pinMotorZ2, motorZMetrix[index][1]);
     digitalWrite(pinMotorZ3, motorZMetrix[index][2]);
     digitalWrite(pinMotorZ4, motorZMetrix[index][3]);
+}
+
+
+bool notSend(char typ, int data)
+{
+  if(value.charAt(2) == '?')
+  {
+  char c[6];
+  sprintf(c, "%c%4d\n", typ,data);
+  Serial.print(c);
+  return false;
+  } 
+  return true;
 }
