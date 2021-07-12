@@ -79,7 +79,7 @@ int main(int argc, char ** argv)
 
 	QLabel motorZBoxText("Kontrola motoru Z:",&w);
 	QPushButton motorZBoxUp("Nahoru"), motorZBoxDown("Dolu"), motorZBoxVibration("Vibrace"),motorZBoxStop("Stop");
-	motorZBox.addWidget(&motorXBoxText);
+	motorZBox.addWidget(&motorZBoxText);
 	motorZBox.addWidget(&motorZBoxUp);
 	motorZBox.addWidget(&motorZBoxDown);
 	motorZBox.addWidget(&motorZBoxVibration);
@@ -95,8 +95,8 @@ miskaABox.addWidget(&miskaABoxAnswer);
 	QSlider svetloABoxSlider( Qt::Horizontal,&w);
 	svetloABoxSlider.setMaximum(100);
 	svetloABoxSlider.setMinimum(0);
-	svetloABoxSlider.setPageStep(10);
-	svetloABoxSlider.setSingleStep(10);
+	svetloABoxSlider.setPageStep(1);
+	svetloABoxSlider.setSingleStep(1);
 
 	svetloABox.addWidget(&svetloABoxText);
 	svetloABox.addWidget(&svetloABoxSlider);
@@ -111,8 +111,8 @@ miskaABox.addWidget(&miskaABoxAnswer);
 	QSlider topeniABoxSlider(Qt::Horizontal,&w);
 	topeniABoxSlider.setMaximum(255);
 	topeniABoxSlider.setMinimum(0);
-	topeniABoxSlider.setPageStep(10);
-	topeniABoxSlider.setSingleStep(10);
+	topeniABoxSlider.setPageStep(1);
+	topeniABoxSlider.setSingleStep(1);
 
 	topeniABox.addWidget(&topeniABoxText);
 	topeniABox.addWidget(&topeniABoxSlider);
@@ -128,8 +128,8 @@ miskaBBox.addWidget(&miskaBBoxAnswer);
 	
 	svetloBBoxSlider.setMaximum(100);
 	svetloBBoxSlider.setMinimum(0);
-	svetloBBoxSlider.setPageStep(10);
-	svetloBBoxSlider.setSingleStep(10);
+	svetloBBoxSlider.setPageStep(1);
+	svetloBBoxSlider.setSingleStep(1);
 
 
 	svetloBBox.addWidget(&svetloBBoxText);
@@ -140,8 +140,8 @@ miskaBBox.addWidget(&miskaBBoxAnswer);
 	QSlider topeniBBoxSlider(Qt::Horizontal,&w);
 	topeniBBoxSlider.setMaximum(255);
 	topeniBBoxSlider.setMinimum(0);
-	topeniBBoxSlider.setPageStep(10);
-	topeniBBoxSlider.setSingleStep(10);
+	topeniBBoxSlider.setPageStep(1);
+	topeniBBoxSlider.setSingleStep(1);
 
 	topeniBBox.addWidget(&topeniBBoxText);
 	topeniBBox.addWidget(&topeniBBoxSlider);
@@ -202,7 +202,7 @@ miskaBBox.addWidget(&miskaBBoxAnswer);
 		{
 			QString beta = QString("Komunikace s portem: ")+serPort.portName();
 			potrSerialSetBoxStatus.setText(beta);
-			tim1.start(2000);
+			tim1.start(60000);
 		}
 	});
 	
@@ -243,11 +243,11 @@ miskaBBox.addWidget(&miskaBBoxAnswer);
 	});
 	QObject::connect(&topeniABoxSlider, QSlider::valueChanged, [&](){
 		protKom.sendOhrev(modOhrevA, topeniABoxSlider.value());
-		miskaABoxAnswer.click();
+		//miskaABoxAnswer.click();
 	});
 	QObject::connect(&topeniBBoxSlider, QSlider::valueChanged, [&](){
 		protKom.sendOhrev(modOhrevB, topeniBBoxSlider.value());
-		miskaBBoxAnswer.click();
+		//miskaBBoxAnswer.click();
 	});
 	QObject::connect(&miskaABoxAnswer, QPushButton::clicked, [&](){
 		teplotaABoxHodnota.setText(QString::number(protKom.AnswerDouble(modTepNadrz)));

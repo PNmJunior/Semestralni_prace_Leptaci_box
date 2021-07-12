@@ -5,6 +5,7 @@
 #include <QLabel>
 #include <QSlider>
 #include <qmath.h>
+#include <QMutex>
 #include "definice.h"
 
 class protokolKomunikace
@@ -29,6 +30,8 @@ public:
     int AnswerInt(char typ);
     double AnswerDouble(char typ);
     int AnswerSvetlo(char typ);
+    //QMutex WorkSend;
+    //QMutex WorkQuest;
 };
 
 protokolKomunikace::protokolKomunikace(QSerialPort *Ser_p, QLabel *textL)
@@ -39,10 +42,13 @@ protokolKomunikace::protokolKomunikace(QSerialPort *Ser_p, QLabel *textL)
 
 protokolKomunikace::~protokolKomunikace()
 {
+    //~WorkQuest();
+    //~WorkSend();
 }
 
 void protokolKomunikace::send(QByteArray j)
 {
+    //WorkSend.lock();
     if(serP->isOpen())
     {
         serP->write(j);
@@ -52,6 +58,7 @@ void protokolKomunikace::send(QByteArray j)
     {
         notOpenWrite();
     }
+    //WorkSend.unlock();
 }
 
 QString protokolKomunikace::notOpen()
@@ -122,6 +129,7 @@ bool protokolKomunikace::sendSvetloProc(char typ, int proc)
 
 QByteArray protokolKomunikace::quest(char typ)
 {
+    //WorkQuest.lock();
     //serP->readAll();
     QString alfa = QString("%1%2\n").arg((char)typ).arg(Dotaz);
     //textLabel->setText("1A");
@@ -137,7 +145,7 @@ QByteArray protokolKomunikace::quest(char typ)
     }
     //textLabel->setText(QString(serP->bytesAvailable()));
     
-
+    //WorkQuest.unlock();
     return serP->read(6);
 }
 
