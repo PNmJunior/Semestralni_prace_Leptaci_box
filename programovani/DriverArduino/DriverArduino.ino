@@ -47,10 +47,10 @@ dtMotorX motorX;
 dtMotorZ motorZ;
 
 //promene motoruZ
-char motorZscit;//urcuje smer pohibu pri vibracich
+int motorZscit;//urcuje smer pohibu pri vibracich
 byte motorZkrok;//Krok motoru Z
 const bool motorZMetrix[5][4]= {{1,0,1,0},{0,1,1,0},{0,1,0,1},{1,0,0,1},{0,0,0,0}};//vystupy pinu vuci krokum
-long motorZtime;//cas dalsiho kroku
+long long motorZtime;//cas dalsiho kroku
 
 void setup() 
 {
@@ -286,6 +286,7 @@ void MotorZrun()//Tento kod je spousten v loop(). Pokud jsou splneny podminy, vy
       motorZscit = 1;
     }
     motorZkrok += motorZscit;
+    
   }
 }
 
