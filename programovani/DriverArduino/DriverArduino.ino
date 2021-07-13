@@ -286,7 +286,6 @@ void MotorZrun()//Tento kod je spousten v loop(). Pokud jsou splneny podminy, vy
       motorZscit = 1;
     }
     motorZkrok += motorZscit;
-    
   }
 }
 
