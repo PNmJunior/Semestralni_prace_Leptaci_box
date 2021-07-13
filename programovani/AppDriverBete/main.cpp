@@ -186,7 +186,6 @@ int main(int argc, char ** argv)
 	vbox.addLayout(&ohrevBBox);
 	vbox.addLayout(&teplotaVBox);
 	
-
 	//pridani do QWidget
 	w.setLayout(&vbox);
 
