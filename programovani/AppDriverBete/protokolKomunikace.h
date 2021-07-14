@@ -246,7 +246,6 @@ bool protokolKomunikace::answerIdentifikace()
     if(answer(modIdentifikace).toInt() == numIdentifikace)
     {
         return true;
-        
     }   
     else
     {

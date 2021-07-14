@@ -283,7 +283,7 @@ int main(int argc, char ** argv)
 					QString beta = QString("Komunikace s portem: ")+serPort.portName();//Informace o navazani spojeni
 					potrSerialSetBoxStatus.setText(beta);
 					QThread::sleep(1);
-					if(protKom.answerIdentifikace())
+					if(true)//protKom.answerIdentifikace()
 					{
 						beta = QString("Leptaci box pripojen na poru: ")+serPort.portName();
 						tim1.start(2000);//Nastaveni casovace, ktery pravidelne bude aktualizovat data.
