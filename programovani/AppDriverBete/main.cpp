@@ -37,6 +37,7 @@ int main(int argc, char ** argv)
 	QVBoxLayout vbox;
 	//Oblasti grafiky
 	QHBoxLayout potrSerialSetBox;//nastaveni portu
+	QHBoxLayout potrSerialSetBox2;//nastaveni portu
 	QGridLayout joystick;
 	QHBoxLayout aktVseBox;//Oblast misky A
 	QHBoxLayout miskaABox;//Oblast misky A
@@ -49,6 +50,7 @@ int main(int argc, char ** argv)
 	QHBoxLayout teplotaVBox;//teoplota nejsiho okoli
 	//fond pro indikaci Ohrivani
 	QFont fOhrev = QFont("Arial", 20, QFont::Bold);
+	QFont fNadpis = QFont("Arial", 15, QFont::Bold);
 	QFrame oddelPort(&w);
 	oddelPort.setFrameStyle( QFrame::HLine | QFrame::Plain);
 	QFrame oddelMotor(&w);
@@ -62,6 +64,7 @@ int main(int argc, char ** argv)
 
 	//Nastaveni portu
 	QLabel potrSerialSetBoxText("Vyber portu:",&w),potrSerialSetBoxTextStatus("Stav: ",&w),potrSerialSetBoxStatus("Nebyl vybran zadny port.",&w);
+	potrSerialSetBoxText.setFont(fNadpis);
 	QPushButton potrSerialSetBoxButAkt("Aktualizovat seznam");
 	QComboBox potrSerialSetBoxCombSeznamPortu(&w);
 	auto infos = QSerialPortInfo::availablePorts();
@@ -76,8 +79,8 @@ int main(int argc, char ** argv)
 	potrSerialSetBox.addWidget(&potrSerialSetBoxButAkt);
 	potrSerialSetBox.addWidget(&potrSerialSetBoxCombSeznamPortu);
 	potrSerialSetBox.addWidget(&potrSerialSetBoxButOk);
-	potrSerialSetBox.addWidget(&potrSerialSetBoxTextStatus);
-	potrSerialSetBox.addWidget(&potrSerialSetBoxStatus);
+	potrSerialSetBox2.addWidget(&potrSerialSetBoxTextStatus);
+	potrSerialSetBox2.addWidget(&potrSerialSetBoxStatus);
 	//potrSerialSetBox.addWidget(&potrSerialSetBoxButAnswerAll);
 
 
@@ -86,6 +89,7 @@ int main(int argc, char ** argv)
 
 	//Text k motorum
 	QLabel motorBoxText("Joysticky pro ovladani ramene:",&w);
+	motorBoxText.setFont(fNadpis);
 
 	//Rizeni Motoru X
 	QPushButton motorXBoxLeftB("<<"),motorXBoxLeftS("<"),motorXBoxRightS(">"),motorXBoxRightB(">>");
@@ -109,6 +113,7 @@ int main(int argc, char ** argv)
 
 	//Myska A
 	QLabel miskaABoxText("Mysky A:",&w);
+	miskaABoxText.setFont(fNadpis);
 	QPushButton miskaABoxAnswer("Aktualizace");
 	miskaABox.addWidget(&miskaABoxText);
 	miskaABox.addWidget(&miskaABoxAnswer);
@@ -130,7 +135,7 @@ int main(int argc, char ** argv)
 	QLCDNumber indikNadrze(7,&w);
 	indikNadrze.setSegmentStyle(QLCDNumber::Flat);
 	indikNadrze.setMinimumHeight(100);
-	indikNadrze.setMinimumWidth(500);
+	indikNadrze.setFixedWidth(400);
 	QLabel teplotaABoxName("Teplota: ",&w); 
 	teplotaABox.addWidget(&teplotaABoxName);
 	//teplotaABox.addWidget(&teplotaABoxHodnota);
@@ -156,6 +161,7 @@ int main(int argc, char ** argv)
 
 	//Myska B
 	QLabel miskaBBoxText("Mysky B:",&w);
+	miskaBBoxText.setFont(fNadpis);
 	QPushButton miskaBBoxAnswer("Aktualizace");
 	miskaBBox.addWidget(&miskaBBoxText);
 	miskaBBox.addWidget(&miskaBBoxAnswer);
@@ -193,20 +199,22 @@ int main(int argc, char ** argv)
 
 
 	//Indikator Vnejsi teploty
-	QLabel teplotaVBoxName("Vnejsi teplota: ",&w); 
-	teplotaVBox.addWidget(&teplotaVBoxName);
+	QLabel teplotaVBoxName("Vnejsi teplota: ",&w), teplotaVBoxEmpty(" ",&w); 
+	teplotaVBoxName.setFont(fNadpis);
+	teplotaVBox.addWidget(&teplotaVBoxEmpty);
 	//teplotaVBox.addWidget(&teplotaVBoxHodnota);
 	//teplotaVBox.addWidget(&teplotaVBoxJednotka);
 	QLCDNumber indikVnejTep(7,&w);
 	indikVnejTep.setSegmentStyle(QLCDNumber::Flat);
 	indikVnejTep.setMinimumHeight(100);
-	indikVnejTep.setMinimumWidth(500);
+	indikVnejTep.setFixedWidth(400);
 	teplotaVBox.addWidget(&indikVnejTep);
 
 
 	//Pridani vsech vrstev do QVBoxLayout
 	
 	vbox.addLayout(&potrSerialSetBox);
+	vbox.addLayout(&potrSerialSetBox2);
 	vbox.addLayout(&aktVseBox);
 	vbox.addWidget(&oddelPort);
 	vbox.addWidget(&motorBoxText);
@@ -221,6 +229,7 @@ int main(int argc, char ** argv)
 	vbox.addLayout(&svetloBBox);
 	vbox.addLayout(&ohrevBBox);
 	vbox.addWidget(&oddelMiskaB);
+	vbox.addWidget(&teplotaVBoxName);
 	vbox.addLayout(&teplotaVBox);
 	
 	//pridani do QWidget
@@ -241,9 +250,11 @@ int main(int argc, char ** argv)
 	});
 	//Vyber portu urceneho ComboBoxem a jeho inicializace...
 	QObject::connect(&potrSerialSetBoxButOk, QPushButton::clicked, [&](){
-		if(potrSerialSetBoxCombSeznamPortu.currentIndex() == -1)//Kontrola vyberu Potru
+		//Kontrola vyberu Potru. Pokud velikosti jsou rozdilne tak je problem... Duvodem implementovany operator== pro QSerialPortInfo
+		if(potrSerialSetBoxCombSeznamPortu.currentIndex() == -1 || infos.size() != QSerialPortInfo::availablePorts().size())
 		{
 			potrSerialSetBoxStatus.setText("Zkontroluj pripojeni. Vyber stroj ze seznamu. Zmackni tlacitko.");
+			potrSerialSetBoxButAkt.click();
 		}
 		else
 		{
