@@ -55,6 +55,8 @@ long long motorZtime;//cas dalsiho kroku
 void setup() 
 {
   Serial.begin(9600);// inicializace UART
+  Serial.flush();
+  //Serial.print('l');
   mlx.begin(); // inicializace teploměru MLX z knihovny
 
   //Nastaveni pinu

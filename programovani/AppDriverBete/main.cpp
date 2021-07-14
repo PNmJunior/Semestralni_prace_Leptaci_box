@@ -22,7 +22,7 @@
 #include <QThread> 
 
 //include knihoven
-#include "definice.h"
+#include "definice.h"//Spolecny soubor
 #include "protokolKomunikace.h"
 
 
@@ -30,28 +30,32 @@
 int main(int argc, char ** argv)
 {
 	QApplication a(argc, argv);
-	QTimer tim1 ;//pravidena aktualizace dat
+	QTimer tim1 ;//pravidelna aktualizace dat
 	QList<QSerialPortInfo> seznPort = QSerialPortInfo::availablePorts();//seznam vsech portu v PC
-	QSerialPortInfo vyberPort;//Port na kterem je lepraci box
+	QSerialPortInfo vyberPort;//Port na kterem je Leptaci box
 	QSerialPort serPort;//inicializace vybraneho portu
 	QWidget w;
 	QVBoxLayout vbox;
 	//Oblasti grafiky
 	QHBoxLayout potrSerialSetBox;//nastaveni portu
-	QHBoxLayout potrSerialSetBox2;//nastaveni portu
-	QGridLayout joystick;
-	QHBoxLayout aktVseBox;//Oblast misky A
-	QHBoxLayout miskaABox;//Oblast misky A
-	QHBoxLayout miskaBBox;//Oblast misky B
-	QHBoxLayout svetloABox;//kontrola osvetleni mysly A
-	QHBoxLayout svetloBBox;//kontrola osvetleni mysly B
-	QHBoxLayout teplotaABox;//kontrola ohrevu mysly A
-	QHBoxLayout ohrevABox;//kontrola teploty mysly A
-	QHBoxLayout ohrevBBox;//kontrola teploty mysly B
-	QHBoxLayout teplotaVBox;//teoplota nejsiho okoli
-	//fond pro indikaci Ohrivani
+	QHBoxLayout potrSerialSetBox2;//nastaveni portu text
+	QGridLayout joystick;//ovladani motoru X a Z
+	QHBoxLayout aktVseBox;//Tlacitko Aktualizovat vse
+	QHBoxLayout miskaABox;//Oblast Misky A
+	QHBoxLayout miskaBBox;//Oblast Misky B
+	QHBoxLayout svetloABox;//kontrola osvetleni misky A
+	QHBoxLayout svetloBBox;//kontrola osvetleni misky B
+	QHBoxLayout teplotaABox;//kontrola ohrevu misky A
+	QHBoxLayout ohrevABox;//kontrola teploty misky A
+	QHBoxLayout ohrevBBox;//kontrola teploty misky B
+	QHBoxLayout teplotaVBox;//teplota v Leptacim boxu
+
+	
+	//font pro indikaci Ohrivani
 	QFont fOhrev = QFont("Arial", 20, QFont::Bold);
+	//font pro Nadpisy
 	QFont fNadpis = QFont("Arial", 15, QFont::Bold);
+	//Horizontalni cary
 	QFrame oddelPort(&w);
 	oddelPort.setFrameStyle( QFrame::HLine | QFrame::Plain);
 	QFrame oddelMotor(&w);
@@ -112,8 +116,8 @@ int main(int argc, char ** argv)
 	joystick.addWidget(&motorXBoxRightB, 1,4);
 
 
-	//Myska A
-	QLabel miskaABoxText("Mysky A:",&w);
+	//miska A
+	QLabel miskaABoxText("Miska A:",&w);
 	miskaABoxText.setFont(fNadpis);
 	QPushButton miskaABoxAnswer("Aktualizace");
 	miskaABox.addWidget(&miskaABoxText);
@@ -145,8 +149,8 @@ int main(int argc, char ** argv)
 	
 
 
-	//Regulace ohrevu mysky
-	QLabel ohrevABoxText("ohrev: "), ohrevABoxStav("??????");
+	//Regulace ohrevu misky
+	QLabel ohrevABoxText("Ohrev: "), ohrevABoxStav("??????");
 	ohrevABoxStav.setFont(fOhrev);
 	ohrevABoxStav.setMinimumWidth(200);
 	QSlider ohrevABoxSlider(Qt::Horizontal,&w);
@@ -160,8 +164,8 @@ int main(int argc, char ** argv)
 	ohrevABox.addWidget(&ohrevABoxStav);
 
 
-	//Myska B
-	QLabel miskaBBoxText("Mysky B:",&w);
+	//miska B
+	QLabel miskaBBoxText("Miska B:",&w);
 	miskaBBoxText.setFont(fNadpis);
 	QPushButton miskaBBoxAnswer("Aktualizace");
 	miskaBBox.addWidget(&miskaBBoxText);
@@ -183,8 +187,8 @@ int main(int argc, char ** argv)
 	//Indikace teploty nadrze B neni
 
 
-	//Regulace ohrevu mysky
-	QLabel ohrevBBoxText("ohrev: "), ohrevBBoxStav("??????");
+	//Regulace ohrevu misky
+	QLabel ohrevBBoxText("Ohrev: "), ohrevBBoxStav("??????");
 	ohrevBBoxStav.setFont(fOhrev);
 	ohrevBBoxStav.setMinimumWidth(200);
 	QSlider ohrevBBoxSlider(Qt::Horizontal,&w);
@@ -251,19 +255,19 @@ int main(int argc, char ** argv)
 	});
 	//Vyber portu urceneho ComboBoxem a jeho inicializace...
 	QObject::connect(&potrSerialSetBoxButOk, QPushButton::clicked, [&](){
-		//Kontrola vyberu Potru. Pokud velikosti jsou rozdilne tak je problem... Duvodem implementovany operator== pro QSerialPortInfo
+		//Kontrola vyberu Potru. Pokud velikosti jsou rozdilne tak je problem... Duvodem je neimplementovany operator== pro QSerialPortInfo
 		if(potrSerialSetBoxCombSeznamPortu.currentIndex() == -1 || infos.size() != QSerialPortInfo::availablePorts().size())
 		{
-			potrSerialSetBoxStatus.setText("Zkontroluj pripojeni. Vyber stroj ze seznamu. Zmackni tlacitko.");
+			potrSerialSetBoxStatus.setText("Zkontroluj pripojeni. Zmackni tlacitko Aktualizovat seznam. Vyber port ze seznamu.");
 			potrSerialSetBoxButAkt.click();
 		}
 		else
 		{
 			try
 			{
-				vyberPort = infos.at( potrSerialSetBoxCombSeznamPortu.currentIndex());//Vyber Potru
-				serPort.setPort(vyberPort);//Nastavit port posle portInfo
-				serPort.open(QIODevice::ReadWrite);//druch komunikace
+				vyberPort = infos.at( potrSerialSetBoxCombSeznamPortu.currentIndex());//Vyber Portu
+				serPort.setPort(vyberPort);//Nastavit port podle portInfo
+				serPort.open(QIODevice::ReadWrite);//druh komunikace
 				serPort.setBaudRate(QSerialPort::Baud9600);//rychlost
 				//Dalsi parametry potrebne pro spravne fungovani serioveho portu
 				serPort.setDataBits(QSerialPort::Data8);
@@ -282,10 +286,10 @@ int main(int argc, char ** argv)
 				{
 					QString beta = QString("Komunikace s portem: ")+serPort.portName();//Informace o navazani spojeni
 					potrSerialSetBoxStatus.setText(beta);
-					QThread::sleep(1);
-					if(true)//protKom.answerIdentifikace()
+					QThread::sleep(2);
+					if(protKom.answerIdentifikace())//protKom.answerIdentifikace()
 					{
-						beta = QString("Leptaci box pripojen na poru: ")+serPort.portName();
+						beta = QString("Leptaci box pripojen na portu: ")+serPort.portName();
 						tim1.start(2000);//Nastaveni casovace, ktery pravidelne bude aktualizovat data.
 					}
 					else
@@ -320,7 +324,7 @@ int main(int argc, char ** argv)
 	QObject::connect(&motorXBoxRightB, QPushButton::clicked, [&](){
 		protKom.sendMotX(pravBMotorX);
 	});
-	//Odeslani instrukce pro MotorZ - Stop - Zastavi vibrace
+	//Odeslani instrukce pro MotorZ - Stop / Zapne vibrace
 	QObject::connect(&motorZBoxStop_Vibration, QPushButton::clicked, [&](){
 		if (mZ  == vibMotorZOn)
 		{
@@ -334,8 +338,6 @@ int main(int argc, char ** argv)
 			motorZBoxStop_Vibration.setText(motorZBoxtextStop);
 			mZ = vibMotorZOn;
 		}
-		
-		
 	});
 	//Odeslani instrukce pro MotorZ - Nahoru
 	QObject::connect(&motorZBoxUp, QPushButton::clicked, [&](){
@@ -346,13 +348,13 @@ int main(int argc, char ** argv)
 		protKom.sendMotZ(dolumotorZ);
 	});
 	//Odeslani instrukce pro SvetloA - nastaveni hodnoty
-	//Kvuli nelinearite sviceni prevadim udaj z procen na 0-255 pomoci vzorce...
+	//Kvuli nelinearite sviceni prevadim udaj z procent na rozsah 0-255 pomoci vzorce...
 	QObject::connect(&svetloABoxSlider, QSlider::valueChanged, [&](){
 		protKom.sendSvetloProc(modSvetloA,svetloABoxSlider.value());
 		
 	});
 	//Odeslani instrukce pro SvetloA - nastaveni hodnoty
-	//Kvuli nelinearite sviceni prevadim udaj z procen na 0-255 pomoci vzorce...
+	//Kvuli nelinearite sviceni prevadim udaj z procent na rozsah 0-255 pomoci vzorce...
 	QObject::connect(&svetloBBoxSlider, QSlider::valueChanged, [&](){
 		protKom.sendSvetloProc(modSvetloB, svetloBBoxSlider.value());	
 	});
@@ -364,7 +366,7 @@ int main(int argc, char ** argv)
 	QObject::connect(&ohrevBBoxSlider, QSlider::valueChanged, [&](){
 		protKom.sendOhrev(modOhrevB, ohrevBBoxSlider.value());
 	});
-	//Odeslani dotazu na: teplotu nadrze A, stav Ohrevu A a od toho nastaveni upozorneni. 
+	//Odeslani dotazu na: teplotu misky A; stav Ohrevu A a od toho nastaveni upozorneni. 
 	QObject::connect(&miskaABoxAnswer, QPushButton::clicked, [&](){
 		//teplotaABoxHodnota.setText(QString::number(protKom.answerDouble(modTepNadrz)));//Zobrazeni teploty
 		indikNadrze.display(QString("%1 C").arg(protKom.answerDouble(modTepNadrz)));
@@ -394,7 +396,7 @@ int main(int argc, char ** argv)
 		}
 		//ohrevBBoxSlider.setValue(ohrev);
 	});
-	//Odeslani Dotayu: svetloA, svetloB, teplota okoli, ohrevA, teplota Nadrze A, ohrev B
+	//Odeslani Dotazu: svetloA, svetloB, teplota okoli, ohrevA, teplota misky A, ohrev B
 	QObject::connect(&BoxButAnswerAll, QPushButton::clicked, [&](){
 		svetloABoxSlider.setValue(protKom.answerSvetlo(modSvetloA));
 		svetloBBoxSlider.setValue(protKom.answerSvetlo(modSvetloB));
@@ -403,7 +405,7 @@ int main(int argc, char ** argv)
 		miskaABoxAnswer.click();
 		miskaBBoxAnswer.click();
 	});
-	//Pravidelna aktualizace udaji: teplota okoli, teplota nadrze A, ohrevA, ohrevB
+	//Pravidelna aktualizace udaju: teplota okoli, teplota misky A, ohrevA, ohrevB
 	QObject::connect(&tim1, QTimer::timeout, [&](){
 		//teplotaVBoxHodnota.setText(QString::number(protKom.answerDouble(modTepOkoli)));
 		indikVnejTep.display(QString("%1 C").arg(protKom.answerDouble(modTepOkoli)));
