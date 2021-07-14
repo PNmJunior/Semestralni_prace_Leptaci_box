@@ -1,6 +1,6 @@
 /*
-Program pro Arduino Nano rev3.0
-
+Program pro Arduino Nano.
+Arduino je uvnitr Leptaciho boxu, kde zastava funkci microkontroleru.
 
 
 */
@@ -22,7 +22,7 @@ Program pro Arduino Nano rev3.0
 #define pinMotorZ2 16
 #define pinMotorZ3 15
 #define pinMotorZ4 14
-//pini, ktere jsou nastaveny jinak nez pres pinMode(...)
+//piny, ktere jsou nastaveny jinak nez pres pinMode(...)
 #define pinTepSCL 19
 #define pinTepSDA 18
 #define pinSerTX 1
@@ -32,12 +32,12 @@ Program pro Arduino Nano rev3.0
 Adafruit_MLX90614 mlx = Adafruit_MLX90614();
 
 
-//Promene dostupne globalne
+//Globalni promenne
 char mode;//instrukce
 // default String
-String value = String(PrazdnePole);//Pouzivan jako predavac informace o datech ukrite v instrukci.
+String value = String(PrazdnePole);//Pouzivan jako predavac informace o datech v instrukci.
 String dotaz = String(Dotaz);
-// inicializace globalnich promenych
+// inicializace globalnich promennych
 dtOhrev ohrevA;
 dtOhrev ohrevB;
 dtSvetlo svetloA;
@@ -46,8 +46,8 @@ dtSvetlo svetloC;
 dtMotorX motorX;
 dtMotorZ motorZ;
 
-//promene motoruZ
-int motorZscit;//urcuje smer pohibu pri vibracich
+//promenne motoruZ
+int motorZscit;//urcuje smer pohybu pri vibracich
 byte motorZkrok;//Krok motoru Z
 const bool motorZMetrix[5][4]= {{1,0,1,0},{0,1,1,0},{0,1,0,1},{1,0,0,1},{0,0,0,0}};//vystupy pinu vuci krokum
 long long motorZtime;//cas dalsiho kroku
@@ -72,7 +72,7 @@ void setup()
   pinMode(pinMotorZ3 , OUTPUT);
   pinMode(pinMotorZ4 , OUTPUT);
 
-  //Inicializace promenych
+  //Inicializace promennych
   //Ohrev: Aktivni vyuziti, rozsah 0-255
   ohrevA = 0;
   ohrevB = 0;
@@ -84,7 +84,7 @@ void setup()
   motorX = 0;
   //Svetlo: Aktivni vyuziti, rozsah mezi 0 a 4
   motorZ = 0;
-  //Systemove promene pro motor X
+  //Systemove promenne pro motor X
   motorZkrok=0;
   motorZtime=0;
 }
@@ -99,7 +99,7 @@ void loop() {
     value.setCharAt(1,Serial.read());
     value.setCharAt(2,Serial.read());
     value.setCharAt(3,Serial.read());
-    //nacteni koncoveho zaku
+    //nacteni koncoveho znaku
     Serial.read();
 
     //Vykonani prikazu
@@ -140,7 +140,7 @@ void loop() {
       break;
     }
   }
-  MotorZrun();//Rutyna vytvarejici vibrace u motoru Z
+  MotorZrun();//Rutina vytvarejici vibrace u motoru Z
 }
 
 
@@ -166,12 +166,12 @@ void Svetlo(char mod,dtSvetlo *data, int pin)//Metoda pro zpracovani instukce Sv
 
 //Metoda pro zpracovani instukce MotorX.
 /*
-PWM rizeni nezvladal zdroj 12V a H-mustkem. 
-Proto jsme pristoupil na binarni rizeni, ktere je ovsem velmi rychle a silne.
+PWM rizeni nezvladal zdroj 12V nebo H-mustkem. 
+Proto jsem pristoupil na binarni rizeni, ktere je ovsem velmi rychle a silne.
 Kvuli moznosti poskozeni o stenu jsem urcil casovy limit pri posunech.
 Funkce vyckava, dokud cas nevyprsi. 
 Prikaz stopMotorX nema zadnou funkci
-Omezuje to motor Z pri vybracich, co nicemu nevadi.
+Omezuje to motor Z pri vibracich, co nicemu nevadi.
 Omezeje zpracovavani novych instukci na max 200ms, co nevadi.
 */
 void MotorXB()
@@ -210,13 +210,13 @@ void MotorXB()
 }
 
 
-void TepOkoliB()//Posle udaj o teplote okoli teplometu.
+void TepOkoliB()//Posle udaj o teplote v Leptacim boxu.
 {
   notSend(modTepOkoli,TepControl(mlx.readAmbientTempC()));
 }
 
 
-void TepNadrzB()//Posle udaj o teplote nadrzi teplometu.
+void TepNadrzB()//Posle udaj o teplote miskyA.
 {
   notSend(modTepNadrz,TepControl(mlx.readObjectTempC()));
 }
