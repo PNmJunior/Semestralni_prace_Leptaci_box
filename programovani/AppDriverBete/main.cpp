@@ -245,30 +245,41 @@ int main(int argc, char ** argv)
 		{
 			potrSerialSetBoxStatus.setText("Zkontroluj pripojeni. Vyber stroj ze seznamu. Zmackni tlacitko.");
 		}
-		vyberPort = infos.at( potrSerialSetBoxCombSeznamPortu.currentIndex());//Vyber Potru
-		serPort.setPort(vyberPort);//Nastavit port posle portInfo
-		serPort.open(QIODevice::ReadWrite);//druch komunikace
-		serPort.setBaudRate(QSerialPort::Baud9600);//rychlost
-		//Dalsi parametry potrebne pro spravne fungovani serioveho portu
-		serPort.setDataBits(QSerialPort::Data8);
-		serPort.setParity(QSerialPort::NoParity);
-		serPort.setStopBits(QSerialPort::OneStop);
-		serPort.setFlowControl(QSerialPort::NoFlowControl);
-		while (!serPort.isOpen())//Otevreni portu
+		else
 		{
-			serPort.open(QIODevice::ReadWrite);
-		}
-		if(!(serPort.isWritable()&&serPort.isOpen()))//Kontrola otevreni portu
-		{
-			protKom.notOpenWrite();
-		}
-		else//Uspesne nastavena komunikace
-		{
-			QString beta = QString("Komunikace s portem: ")+serPort.portName();//Informace o navazani spojeni
-			potrSerialSetBoxStatus.setText(beta);
-			
-			//Nastaveni casovace, ktery pravidelne bude aktualizovat data.
-			tim1.start(2000);
+			try
+			{
+				vyberPort = infos.at( potrSerialSetBoxCombSeznamPortu.currentIndex());//Vyber Potru
+				serPort.setPort(vyberPort);//Nastavit port posle portInfo
+				serPort.open(QIODevice::ReadWrite);//druch komunikace
+				serPort.setBaudRate(QSerialPort::Baud9600);//rychlost
+				//Dalsi parametry potrebne pro spravne fungovani serioveho portu
+				serPort.setDataBits(QSerialPort::Data8);
+				serPort.setParity(QSerialPort::NoParity);
+				serPort.setStopBits(QSerialPort::OneStop);
+				serPort.setFlowControl(QSerialPort::NoFlowControl);
+				while (!serPort.isOpen())//Otevreni portu
+				{
+					serPort.open(QIODevice::ReadWrite);
+				}
+				if(!(serPort.isWritable()&&serPort.isOpen()))//Kontrola otevreni portu
+				{
+					protKom.notOpenWrite();
+				}
+				else//Uspesne nastavena komunikace
+				{
+					QString beta = QString("Komunikace s portem: ")+serPort.portName();//Informace o navazani spojeni
+					potrSerialSetBoxStatus.setText(beta);
+					
+					//Nastaveni casovace, ktery pravidelne bude aktualizovat data.
+					tim1.start(2000);
+				}
+			}
+			catch(...)
+			{
+				protKom.notOpenWrite();
+				serPort.close();
+			}
 		}
 	});
 	//Odeslani instrukce pro MotorX - Trochu do leva

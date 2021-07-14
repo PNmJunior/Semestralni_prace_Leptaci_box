@@ -4,6 +4,7 @@
 #include <QSerialPortInfo>
 #include <QLabel>
 #include <qmath.h>
+#include <QThread>  
 #include "definice.h"
 
 
@@ -48,14 +49,23 @@ protokolKomunikace::~protokolKomunikace()
 
 void protokolKomunikace::send(QByteArray j)
 {
-    if(serP->isOpen())//Kontrola otevreni portu
-    {
-        serP->write(j);//Ulozeni do buffer
-        serP->flush();//Odeslani do Arduna
+    try
+    {   
+        if(serP->isOpen())//Kontrola otevreni portu
+        {
+            serP->write(j);//Ulozeni do buffer
+            serP->flush();//Odeslani do Arduna
+        }
+        else
+        {
+            notOpenWrite();//Odeslani chybne hlasky
+            serP->close();
+        }
     }
-    else
+    catch(...)
     {
         notOpenWrite();//Odeslani chybne hlasky
+        serP->close();
     }
 }
 
@@ -141,20 +151,36 @@ bool protokolKomunikace::sendSvetloProc(char typ, int proc)
 
 QByteArray protokolKomunikace::quest(char typ)
 {
-    if(serP->isOpen() == false)//Kontrola otevreni
+    try
+    {
+        if(serP->isOpen() == false)//Kontrola otevreni
+        {
+            notOpenWrite();
+            return QString(Problem).toUtf8();
+        }
+        QString alfa = QString("%1%2\n").arg((char)typ).arg(Dotaz);//Formulace Otasku
+        send(alfa.toUtf8());//Poslani dotazu
+        serP->waitForBytesWritten();//cekani
+        serP->waitForReadyRead();//cekani
+        for (int i = 0; i <100 && serP->bytesAvailable()<6; i++)
+        {
+            textLabel->setText("cekam");
+            QThread::msleep(100);
+        }
+        if((serP->bytesAvailable()<6))
+        {
+            notOpenWrite();
+            serP->close();
+            return QString(Problem).toUtf8();
+        }
+        return serP->read(6);//precteni odpoved
+    }
+    catch(...)
     {
         notOpenWrite();
+        serP->close();
         return QString(Problem).toUtf8();
     }
-    QString alfa = QString("%1%2\n").arg((char)typ).arg(Dotaz);//Formulace Otasku
-    send(alfa.toUtf8());//Poslani dotazu
-    serP->waitForBytesWritten();//cekani
-    serP->waitForReadyRead();//cekani
-    while ((serP->bytesAvailable()<6))//cekani na odpoved
-    {
-            textLabel->setText("cekam");
-    }
-    return serP->read(6);//precteni odpoved
 }
 
 
