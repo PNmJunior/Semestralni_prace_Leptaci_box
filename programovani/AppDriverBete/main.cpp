@@ -15,11 +15,13 @@
 #include <QFont>
 #include <QTimer>
 #include <QGridLayout>
+#include <QGamepad>
+#include <QLine>
+#include <QFrame>
 
 //include knihoven
 #include "definice.h"
 #include "protokolKomunikace.h"
-#include "motor.h"
 
 
 //main
@@ -34,8 +36,8 @@ int main(int argc, char ** argv)
 	QVBoxLayout vbox;
 	//Oblasti grafiky
 	QHBoxLayout potrSerialSetBox;//nastaveni portu
-	QHBoxLayout motorXBox;//kontrola motoru X
-	QHBoxLayout motorZBox;//kontrola motoru Z
+	QGridLayout joystick;
+	QHBoxLayout aktVseBox;//Oblast misky A
 	QHBoxLayout miskaABox;//Oblast misky A
 	QHBoxLayout miskaBBox;//Oblast misky B
 	QHBoxLayout svetloABox;//kontrola osvetleni mysly A
@@ -46,6 +48,14 @@ int main(int argc, char ** argv)
 	QHBoxLayout teplotaVBox;//teoplota nejsiho okoli
 	//fond pro indikaci Ohrivani
 	QFont fOhrev = QFont("Arial", 20, QFont::Bold);
+	QFrame oddelPort(&w);
+	oddelPort.setFrameStyle( QFrame::HLine | QFrame::Plain);
+	QFrame oddelMotor(&w);
+	oddelMotor.setFrameStyle( QFrame::HLine | QFrame::Plain);
+	QFrame oddelMiskaA(&w);
+	oddelMiskaA.setFrameStyle( QFrame::HLine | QFrame::Plain);
+	QFrame oddelMiskaB(&w);
+	oddelMiskaB.setFrameStyle( QFrame::HLine | QFrame::Plain);
 
 
 
@@ -60,15 +70,18 @@ int main(int argc, char ** argv)
 	}
 
 	QPushButton potrSerialSetBoxButOk("Vyber");//Vyber portu
-	QPushButton potrSerialSetBoxButAnswerAll("Aktualizovat vse");//Aktualizuje vsechny data
+	
 	potrSerialSetBox.addWidget(&potrSerialSetBoxText);
 	potrSerialSetBox.addWidget(&potrSerialSetBoxButAkt);
 	potrSerialSetBox.addWidget(&potrSerialSetBoxCombSeznamPortu);
 	potrSerialSetBox.addWidget(&potrSerialSetBoxButOk);
 	potrSerialSetBox.addWidget(&potrSerialSetBoxTextStatus);
 	potrSerialSetBox.addWidget(&potrSerialSetBoxStatus);
-	potrSerialSetBox.addWidget(&potrSerialSetBoxButAnswerAll);
+	//potrSerialSetBox.addWidget(&potrSerialSetBoxButAnswerAll);
 
+
+	QPushButton BoxButAnswerAll("Aktualizovat vsechny data");//Aktualizuje vsechny data
+	aktVseBox.addWidget(&BoxButAnswerAll);
 
 	//Text k motorum
 	QLabel motorBoxText("Joysticky pro ovladani ramene:",&w);
@@ -83,7 +96,7 @@ int main(int argc, char ** argv)
 	QString motorZBoxtextVibrace = QString("Vibrace");
     QString motorZBoxtextStop = QString("Stop");
 
-	QGridLayout joystick;
+	
 	joystick.addWidget(&motorZBoxUp, 0,2);
 	joystick.addWidget(&motorZBoxStop_Vibration, 1,2);
 	joystick.addWidget(&motorZBoxDown, 2,2);
@@ -91,7 +104,8 @@ int main(int argc, char ** argv)
 	joystick.addWidget(&motorXBoxLeftS, 1,1);
 	joystick.addWidget(&motorXBoxRightS, 1,3);
 	joystick.addWidget(&motorXBoxRightB, 1,4);
-	joystick.addWidget(&motorBoxText, 0,0);
+
+
 	//Myska A
 	QLabel miskaABoxText("Mysky A:",&w);
 	QPushButton miskaABoxAnswer("Aktualizace");
@@ -182,17 +196,20 @@ int main(int argc, char ** argv)
 	//Pridani vsech vrstev do QVBoxLayout
 	
 	vbox.addLayout(&potrSerialSetBox);
+	vbox.addLayout(&aktVseBox);
+	vbox.addWidget(&oddelPort);
 	vbox.addWidget(&motorBoxText);
 	vbox.addLayout(&joystick);
-	vbox.addLayout(&motorXBox);
-	vbox.addLayout(&motorZBox);
+	vbox.addWidget(&oddelMotor);
 	vbox.addLayout(&miskaABox);
 	vbox.addLayout(&svetloABox);
 	vbox.addLayout(&teplotaABox);
 	vbox.addLayout(&ohrevABox);
+	vbox.addWidget(&oddelMiskaA);
 	vbox.addLayout(&miskaBBox);
 	vbox.addLayout(&svetloBBox);
 	vbox.addLayout(&ohrevBBox);
+	vbox.addWidget(&oddelMiskaB);
 	vbox.addLayout(&teplotaVBox);
 	
 	//pridani do QWidget
@@ -333,7 +350,7 @@ int main(int argc, char ** argv)
 		//ohrevBBoxSlider.setValue(ohrev);
 	});
 	//Odeslani Dotayu: svetloA, svetloB, teplota okoli, ohrevA, teplota Nadrze A, ohrev B
-	QObject::connect(&potrSerialSetBoxButAnswerAll, QPushButton::clicked, [&](){
+	QObject::connect(&BoxButAnswerAll, QPushButton::clicked, [&](){
 		svetloABoxSlider.setValue(protKom.answerSvetlo(modSvetloA));
 		svetloBBoxSlider.setValue(protKom.answerSvetlo(modSvetloB));
 		teplotaVBoxHodnota.setText(QString::number(protKom.answerDouble(modTepOkoli)));
