@@ -14,10 +14,12 @@
 #include <QObject>
 #include <QFont>
 #include <QTimer>
+#include <QGridLayout>
 
 //include knihoven
 #include "definice.h"
 #include "protokolKomunikace.h"
+#include "motor.h"
 
 
 //main
@@ -45,6 +47,8 @@ int main(int argc, char ** argv)
 	//fond pro indikaci Ohrivani
 	QFont fOhrev = QFont("Arial", 20, QFont::Bold);
 
+
+
 	//Nastaveni portu
 	QLabel potrSerialSetBoxText("Vyber portu:",&w),potrSerialSetBoxTextStatus("Stav: ",&w),potrSerialSetBoxStatus("Nebyl vybran zadny port.",&w);
 	QPushButton potrSerialSetBoxButAkt("Aktualizovat seznam");
@@ -66,27 +70,28 @@ int main(int argc, char ** argv)
 	potrSerialSetBox.addWidget(&potrSerialSetBoxButAnswerAll);
 
 
+	//Text k motorum
+	QLabel motorBoxText("Joysticky pro ovladani ramene:",&w);
+
 	//Rizeni Motoru X
-	QLabel motorXBoxText("Rizeni motoru X:",&w);
-	QPushButton motorXBoxLeftB("<<"),motorXBoxLeftS("<"), motorXBoxStop("Stop"),motorXBoxRightS(">"),motorXBoxRightB(">>");
-	motorXBox.addWidget(&motorXBoxText);
-	motorXBox.addWidget(&motorXBoxLeftB);
-	motorXBox.addWidget(&motorXBoxLeftS);
-	motorXBox.addWidget(&motorXBoxStop);
-	motorXBox.addWidget(&motorXBoxRightS);
-	motorXBox.addWidget(&motorXBoxRightB);
+	QPushButton motorXBoxLeftB("<<"),motorXBoxLeftS("<"),motorXBoxRightS(">"),motorXBoxRightB(">>");
 
 	
 	//Rizeni Motoru Z
-	QLabel motorZBoxText("Rizeni motoru Z:",&w);
-	QPushButton motorZBoxUp("Nahoru"), motorZBoxDown("Dolu"), motorZBoxVibration("Vibrace"),motorZBoxStop("Stop");
-	motorZBox.addWidget(&motorZBoxText);
-	motorZBox.addWidget(&motorZBoxUp);
-	motorZBox.addWidget(&motorZBoxDown);
-	motorZBox.addWidget(&motorZBoxVibration);
-	motorZBox.addWidget(&motorZBoxStop);
+	QPushButton motorZBoxUp("Nahoru"), motorZBoxDown("Dolu"), motorZBoxStop_Vibration("Vibrace");
+	dtMotorZ mZ;
+	QString motorZBoxtextVibrace = QString("Vibrace");
+    QString motorZBoxtextStop = QString("Stop");
 
-
+	QGridLayout joystick;
+	joystick.addWidget(&motorZBoxUp, 0,2);
+	joystick.addWidget(&motorZBoxStop_Vibration, 1,2);
+	joystick.addWidget(&motorZBoxDown, 2,2);
+	joystick.addWidget(&motorXBoxLeftB, 1,0);
+	joystick.addWidget(&motorXBoxLeftS, 1,1);
+	joystick.addWidget(&motorXBoxRightS, 1,3);
+	joystick.addWidget(&motorXBoxRightB, 1,4);
+	joystick.addWidget(&motorBoxText, 0,0);
 	//Myska A
 	QLabel miskaABoxText("Mysky A:",&w);
 	QPushButton miskaABoxAnswer("Aktualizace");
@@ -173,8 +178,12 @@ int main(int argc, char ** argv)
 	teplotaVBox.addWidget(&teplotaVBoxJednotka);
 
 
+
 	//Pridani vsech vrstev do QVBoxLayout
+	
 	vbox.addLayout(&potrSerialSetBox);
+	vbox.addWidget(&motorBoxText);
+	vbox.addLayout(&joystick);
 	vbox.addLayout(&motorXBox);
 	vbox.addLayout(&motorZBox);
 	vbox.addLayout(&miskaABox);
@@ -250,13 +259,22 @@ int main(int argc, char ** argv)
 	QObject::connect(&motorXBoxRightB, QPushButton::clicked, [&](){
 		protKom.sendMotX(pravBMotorX);
 	});
-	//Odeslani instrukce pro MotorX - Stop - Ale nema jakikoliv viznam...
-	QObject::connect(&motorXBoxStop, QPushButton::clicked, [&](){
-		protKom.sendMotX(stopMotorX);
-	});
 	//Odeslani instrukce pro MotorZ - Stop - Zastavi vibrace
-	QObject::connect(&motorZBoxStop, QPushButton::clicked, [&](){
-		protKom.sendMotZ(stopMotorZ);
+	QObject::connect(&motorZBoxStop_Vibration, QPushButton::clicked, [&](){
+		if (mZ  == vibMotorZOn)
+		{
+			protKom.sendMotZ(stopMotorZ);
+			motorZBoxStop_Vibration.setText(motorZBoxtextVibrace);
+			mZ = stopMotorZ;
+		}
+		else
+		{
+			protKom.sendMotZ(vibMotorZOn);
+			motorZBoxStop_Vibration.setText(motorZBoxtextStop);
+			mZ = vibMotorZOn;
+		}
+		
+		
 	});
 	//Odeslani instrukce pro MotorZ - Nahoru
 	QObject::connect(&motorZBoxUp, QPushButton::clicked, [&](){
@@ -265,10 +283,6 @@ int main(int argc, char ** argv)
 	//Odeslani instrukce pro MotorZ - Dolu
 	QObject::connect(&motorZBoxDown, QPushButton::clicked, [&](){
 		protKom.sendMotZ(dolumotorZ);
-	});
-	//Odeslani instrukce pro MotorZ - Zapnout vibrace
-	QObject::connect(&motorZBoxVibration, QPushButton::clicked, [&](){
-		protKom.sendMotZ(vibMotorZOn);
 	});
 	//Odeslani instrukce pro SvetloA - nastaveni hodnoty
 	//Kvuli nelinearite sviceni prevadim udaj z procen na 0-255 pomoci vzorce...
