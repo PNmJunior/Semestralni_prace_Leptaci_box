@@ -18,6 +18,7 @@
 #include <QGamepad>
 #include <QLine>
 #include <QFrame>
+#include <QLCDNumber>
 
 //include knihoven
 #include "definice.h"
@@ -126,10 +127,16 @@ int main(int argc, char ** argv)
 
 
 	//Indikace teploty nadrze
+	QLCDNumber indikNadrze(7,&w);
+	indikNadrze.setSegmentStyle(QLCDNumber::Flat);
+	indikNadrze.setMinimumHeight(100);
+	indikNadrze.setMinimumWidth(500);
 	QLabel teplotaABoxName("Teplota: ",&w), teplotaABoxHodnota("00,00",&w), teplotaABoxJednotka("°C",&w); 
 	teplotaABox.addWidget(&teplotaABoxName);
-	teplotaABox.addWidget(&teplotaABoxHodnota);
-	teplotaABox.addWidget(&teplotaABoxJednotka);
+	//teplotaABox.addWidget(&teplotaABoxHodnota);
+	//teplotaABox.addWidget(&teplotaABoxJednotka);
+	teplotaABox.addWidget(&indikNadrze);
+	
 
 
 	//Regulace ohrevu mysky
@@ -188,9 +195,13 @@ int main(int argc, char ** argv)
 	//Indikator Vnejsi teploty
 	QLabel teplotaVBoxName("Vnejsi teplota: ",&w), teplotaVBoxHodnota("00,00",&w), teplotaVBoxJednotka("°C",&w); 
 	teplotaVBox.addWidget(&teplotaVBoxName);
-	teplotaVBox.addWidget(&teplotaVBoxHodnota);
-	teplotaVBox.addWidget(&teplotaVBoxJednotka);
-
+	//teplotaVBox.addWidget(&teplotaVBoxHodnota);
+	//teplotaVBox.addWidget(&teplotaVBoxJednotka);
+	QLCDNumber indikVnejTep(7,&w);
+	indikVnejTep.setSegmentStyle(QLCDNumber::Flat);
+	indikVnejTep.setMinimumHeight(100);
+	indikVnejTep.setMinimumWidth(500);
+	teplotaVBox.addWidget(&indikVnejTep);
 
 
 	//Pridani vsech vrstev do QVBoxLayout
@@ -322,7 +333,8 @@ int main(int argc, char ** argv)
 	});
 	//Odeslani dotazu na: teplotu nadrze A, stav Ohrevu A a od toho nastaveni upozorneni. 
 	QObject::connect(&miskaABoxAnswer, QPushButton::clicked, [&](){
-		teplotaABoxHodnota.setText(QString::number(protKom.answerDouble(modTepNadrz)));//Zobrazeni teploty
+		//teplotaABoxHodnota.setText(QString::number(protKom.answerDouble(modTepNadrz)));//Zobrazeni teploty
+		indikNadrze.display(QString("%1 C").arg(protKom.answerDouble(modTepNadrz)));
 		int ohrev = protKom.answerInt(modOhrevA);//informaci o Ohrevu
 		if (ohrev == 0 || ohrev == -1)
 		{
@@ -359,7 +371,8 @@ int main(int argc, char ** argv)
 	});
 	//Pravidelna aktualizace udaji: teplota okoli, teplota nadrze A, ohrevA, ohrevB
 	QObject::connect(&tim1, QTimer::timeout, [&](){
-		teplotaVBoxHodnota.setText(QString::number(protKom.answerDouble(modTepOkoli)));
+		//teplotaVBoxHodnota.setText(QString::number(protKom.answerDouble(modTepOkoli)));
+		indikVnejTep.display(QString("%1 C").arg(protKom.answerDouble(modTepOkoli)));
 		miskaABoxAnswer.click();
 		miskaBBoxAnswer.click();
 	});
