@@ -162,7 +162,7 @@ QByteArray protokolKomunikace::quest(char typ)
         send(alfa.toUtf8());//Poslani dotazu
         serP->waitForBytesWritten();//cekani
         serP->waitForReadyRead();//cekani
-        for (int i = 0; i <100 && serP->bytesAvailable()<6; i++)
+        for (int i = 0; i <20 && serP->bytesAvailable()<6; i++)
         {
             textLabel->setText("cekam");
             QThread::msleep(100);

@@ -131,7 +131,7 @@ int main(int argc, char ** argv)
 	indikNadrze.setSegmentStyle(QLCDNumber::Flat);
 	indikNadrze.setMinimumHeight(100);
 	indikNadrze.setMinimumWidth(500);
-	QLabel teplotaABoxName("Teplota: ",&w), teplotaABoxHodnota("00,00",&w), teplotaABoxJednotka("°C",&w); 
+	QLabel teplotaABoxName("Teplota: ",&w); 
 	teplotaABox.addWidget(&teplotaABoxName);
 	//teplotaABox.addWidget(&teplotaABoxHodnota);
 	//teplotaABox.addWidget(&teplotaABoxJednotka);
@@ -193,7 +193,7 @@ int main(int argc, char ** argv)
 
 
 	//Indikator Vnejsi teploty
-	QLabel teplotaVBoxName("Vnejsi teplota: ",&w), teplotaVBoxHodnota("00,00",&w), teplotaVBoxJednotka("°C",&w); 
+	QLabel teplotaVBoxName("Vnejsi teplota: ",&w); 
 	teplotaVBox.addWidget(&teplotaVBoxName);
 	//teplotaVBox.addWidget(&teplotaVBoxHodnota);
 	//teplotaVBox.addWidget(&teplotaVBoxJednotka);
@@ -376,7 +376,8 @@ int main(int argc, char ** argv)
 	QObject::connect(&BoxButAnswerAll, QPushButton::clicked, [&](){
 		svetloABoxSlider.setValue(protKom.answerSvetlo(modSvetloA));
 		svetloBBoxSlider.setValue(protKom.answerSvetlo(modSvetloB));
-		teplotaVBoxHodnota.setText(QString::number(protKom.answerDouble(modTepOkoli)));
+		//teplotaVBoxHodnota.setText(QString::number(protKom.answerDouble(modTepOkoli)));
+		indikVnejTep.display(QString("%1 C").arg(protKom.answerDouble(modTepOkoli)));
 		miskaABoxAnswer.click();
 		miskaBBoxAnswer.click();
 	});
