@@ -310,7 +310,7 @@ void MotorZindex(int index)//Nastavy u motoru Z piny.
 
 //Return je:
 //True:  Nenalezeno "????" a pokracuje se dal v ukonech jako zapsani dat.
-//False: Nalezeno "????" a zpracovano. Zakaz delat dalsi ukony
+//False: Nalezeno "????" a zpracovano. Zakaz delat dalsi ukony.
 bool notSend(char typ, int data)
 {
   if(value.charAt(2) == '?')

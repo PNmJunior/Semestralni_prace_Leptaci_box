@@ -286,7 +286,7 @@ int main(int argc, char ** argv)
 				{
 					QString beta = QString("Komunikace s portem: ")+serPort.portName();//Informace o navazani spojeni
 					potrSerialSetBoxStatus.setText(beta);
-					QThread::sleep(2);
+					QThread::sleep(2);//Pro Navazani spojeni se zarizenim
 					if(protKom.answerIdentifikace())//protKom.answerIdentifikace()
 					{
 						beta = QString("Leptaci box pripojen na portu: ")+serPort.portName();
