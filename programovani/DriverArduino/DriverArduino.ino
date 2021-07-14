@@ -237,9 +237,9 @@ int TepControl(dtTep a)//kontrola chyb teplomeru a uprava formatu
 
 /*
 Metoda MotorZC() ma dva rozdilne zamereni
--Posunuje o oredem difinovany pocet kroku motor Z. Po tuto dobu zaastaveno zpracovani novych instrukci.
+-Posunuje o predem difinovany pocet kroku motor Z. Po tuto dobu zastaveno zpracovani novych instrukci.
 --Nefunkguje prikaz stopMotorZ
--Nastavy MotorZrun() na generator vibraci (vibMotorZOn) nebo vibrace vipne (stopMotorZ).
+-Nastavy MotorZrun() na generator vibraci (vibMotorZOn) nebo vibrace vypne (stopMotorZ).
 */
 void MotorZC()
 {
@@ -280,7 +280,7 @@ void MotorZC()
 }
 
 
-void MotorZrun()//Tento kod je spousten v loop(). Pokud jsou splneny podminy, vytvari vybrace
+void MotorZrun()//Tento kod je spousten v loop(). Pokud jsou splneny podminky, vitvari vibrace
 {
   if(motorZ == vibMotorZOn && motorZtime < millis())
   {
@@ -299,7 +299,7 @@ void MotorZrun()//Tento kod je spousten v loop(). Pokud jsou splneny podminy, vy
 }
 
 
-void MotorZindex(int index)//Nastavy u motoru Z piny.
+void MotorZindex(int index)//Nastaveni pinu u motoru Z.
 {
     digitalWrite(pinMotorZ1, motorZMetrix[index][0]);
     digitalWrite(pinMotorZ2, motorZMetrix[index][1]);
