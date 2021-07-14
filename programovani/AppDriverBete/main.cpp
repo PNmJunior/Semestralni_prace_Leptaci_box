@@ -19,6 +19,7 @@
 #include <QLine>
 #include <QFrame>
 #include <QLCDNumber>
+#include <QThread> 
 
 //include knihoven
 #include "definice.h"
@@ -281,9 +282,19 @@ int main(int argc, char ** argv)
 				{
 					QString beta = QString("Komunikace s portem: ")+serPort.portName();//Informace o navazani spojeni
 					potrSerialSetBoxStatus.setText(beta);
-					
-					//Nastaveni casovace, ktery pravidelne bude aktualizovat data.
-					tim1.start(2000);
+					QThread::sleep(1);
+					if(protKom.answerIdentifikace())
+					{
+						beta = QString("Leptaci box pripojen na poru: ")+serPort.portName();
+						tim1.start(2000);//Nastaveni casovace, ktery pravidelne bude aktualizovat data.
+					}
+					else
+					{
+						beta = QString("Na Portu %1 neni Leptaci box").arg(serPort.portName());
+						//serPort.disconnect();
+						serPort.close();
+					}
+					potrSerialSetBoxStatus.setText(beta);
 				}
 			}
 			catch(...)

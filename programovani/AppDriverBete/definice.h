@@ -1,3 +1,12 @@
+/*
+Tento soubor je totozny s:
+-programovani/AppDriverBete/definice.h
+-programovani/DriverArduino/definice.h
+Kvuli kompaktibilite komunikacniho protokolu.
+Ano, nesystemovost nazvu vypliva z historie projektu. 
+Bylo by velmi neprakticke prejmenovavat definice v projektu Arduino, tak v App.
+
+*/
 #define modOhrevA 'A'
 #define modOhrevB 'B'
 #define modSvetloA 'C'
@@ -7,6 +16,9 @@
 #define modMotorZ 'G'
 #define modTepNadrz 'H'
 #define modTepOkoli 'I'
+#define modIdentifikace 'L'
+
+#define numIdentifikace 1234
 
 #define dtOhrev uint8_t
 #define dtSvetlo uint8_t

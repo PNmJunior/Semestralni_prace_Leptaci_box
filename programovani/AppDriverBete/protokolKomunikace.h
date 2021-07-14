@@ -32,6 +32,7 @@ public:
     int answerInt(char typ);//Prevede answer na INT
     double answerDouble(char typ);//Prevede answer na DOUBLE
     int answerSvetlo(char typ);//Prevede answer na svetlo ve formatu procenta -> 0-100
+    bool answerIdentifikace();//True v pripade spravne odpovedi na Identifikacni otazku
 };
 
 
@@ -237,4 +238,20 @@ int protokolKomunikace::answerSvetlo(char typ)
         return ret;
     }
     return 0;
+}
+
+
+bool protokolKomunikace::answerIdentifikace()
+{
+    if(answer(modIdentifikace).toInt() == numIdentifikace)
+    {
+        return true;
+        
+    }   
+    else
+    {
+        textLabel->setText(answer(modIdentifikace));
+        return false;
+        
+    }
 }

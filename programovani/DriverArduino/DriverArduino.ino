@@ -130,6 +130,9 @@ void loop() {
       case modTepOkoli:
       TepOkoliB();
       break;
+      case modIdentifikace:
+      Identifikace();
+      break;
       default:
       Serial.print(Problem);
       break;
@@ -216,6 +219,10 @@ void TepNadrzB()//Posle udaj o teplote nadrzi teplometu.
   notSend(modTepNadrz,TepControl(mlx.readObjectTempC()));
 }
 
+void Identifikace()//Odpoved na dotaz identifikace
+{
+  notSend(modIdentifikace,numIdentifikace);
+}
 
 int TepControl(dtTep a)//kontrola chyb teplomeru a uprava formatu
 {
