@@ -216,8 +216,29 @@ int main(int argc, char ** argv)
 	indikVnejTep.setFixedWidth(400);
 	teplotaVBox.addWidget(&indikVnejTep);
 
+	//graf
+		long timSecund = 0;
+	int timAddSec = 2;
+	double tepZtrata_s = 0.1;
+	double tepMaxOhrev_s = 0.5;
+	dtTep tepMiskyA;
+	QVector<double> zaznamTeploty;
+	QVector<double> zaznamTeplotyCas;
+	QVector<double> predikceVivojeTep;
+	QVector<double> predikceVivojeTepCas;
+	QCustomPlot *plot = new QCustomPlot(&w);
+	plot->addGraph();
+	plot->graph(0)->setPen(QPen(Qt::blue));
+	//plot->graph(1)->setPen(QPen(Qt::red));
+	
+	plot->resize(640, 480);
+	plot->replot();
+
+
 
 	//Pridani vsech vrstev do QVBoxLayout
+
+
 	
 	vbox.addLayout(&potrSerialSetBox);
 	vbox.addLayout(&potrSerialSetBox2);
@@ -229,6 +250,7 @@ int main(int argc, char ** argv)
 	vbox.addLayout(&miskaABox);
 	vbox.addLayout(&svetloABox);
 	vbox.addLayout(&teplotaABox);
+	vbox.addWidget(plot);
 	vbox.addLayout(&ohrevABox);
 	vbox.addWidget(&oddelMiskaA);
 	vbox.addLayout(&miskaBBox);
@@ -370,7 +392,7 @@ int main(int argc, char ** argv)
 	//Odeslani dotazu na: teplotu misky A; stav Ohrevu A a od toho nastaveni upozorneni. 
 	QObject::connect(&miskaABoxAnswer, QPushButton::clicked, [&](){
 		//teplotaABoxHodnota.setText(QString::number(protKom.answerDouble(modTepNadrz)));//Zobrazeni teploty
-		indikNadrze.display(QString("%1 C").arg(protKom.answerDouble(modTepNadrz)));
+		//indikNadrze.display(QString("%1 C").arg(protKom.answerDouble(modTepNadrz)));
 		int ohrev = protKom.answerInt(modOhrevA);//informaci o Ohrevu
 		if (ohrev == 0 || ohrev == -1)
 		{
@@ -412,6 +434,17 @@ int main(int argc, char ** argv)
 		indikVnejTep.display(QString("%1 C").arg(protKom.answerDouble(modTepOkoli)));
 		miskaABoxAnswer.click();
 		miskaBBoxAnswer.click();
+		tepMiskyA = protKom.answerDouble(modTepNadrz);
+		indikNadrze.display(QString("%1 C").arg(tepMiskyA));
+		zaznamTeploty.push_back(tepMiskyA);
+		timSecund += timAddSec;
+		zaznamTeplotyCas.push_back(timSecund);
+		//plot->graph(0)->deleteLater();
+	plot->graph(0)->setData(zaznamTeplotyCas, zaznamTeploty);
+	//plot->resize(640, 480);
+	plot->graph(0)->rescaleAxes();
+	plot->replot();
+
 	});
 
 
