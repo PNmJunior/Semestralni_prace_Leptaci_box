@@ -219,17 +219,20 @@ int main(int argc, char ** argv)
 	//graf
 		long timSecund = 0;
 	int timAddSec = 2;
-	double tepZtrata_s = 0.1;
-	double tepMaxOhrev_s = 0.5;
+	double tepZtrata_s = 0.0001;
+	double tepMaxOhrev_s = 0.5/255;
 	dtTep tepMiskyA;
+	dtTep tepMiskyAOld;
+	int oA;
 	QVector<double> zaznamTeploty;
 	QVector<double> zaznamTeplotyCas;
 	QVector<double> predikceVivojeTep;
 	QVector<double> predikceVivojeTepCas;
 	QCustomPlot *plot = new QCustomPlot(&w);
 	plot->addGraph();
+	plot->addGraph();
 	plot->graph(0)->setPen(QPen(Qt::blue));
-	//plot->graph(1)->setPen(QPen(Qt::red));
+	plot->graph(1)->setPen(QPen(Qt::red));
 	
 	plot->resize(640, 480);
 	plot->replot();
@@ -393,8 +396,8 @@ int main(int argc, char ** argv)
 	QObject::connect(&miskaABoxAnswer, QPushButton::clicked, [&](){
 		//teplotaABoxHodnota.setText(QString::number(protKom.answerDouble(modTepNadrz)));//Zobrazeni teploty
 		//indikNadrze.display(QString("%1 C").arg(protKom.answerDouble(modTepNadrz)));
-		int ohrev = protKom.answerInt(modOhrevA);//informaci o Ohrevu
-		if (ohrev == 0 || ohrev == -1)
+		oA = protKom.answerInt(modOhrevA);//informaci o Ohrevu
+		if (oA == 0 || oA == -1)
 		{
 			ohrevABoxStav.setText("Chlazeni");
 		}
@@ -442,7 +445,35 @@ int main(int argc, char ** argv)
 		//plot->graph(0)->deleteLater();
 	plot->graph(0)->setData(zaznamTeplotyCas, zaznamTeploty);
 	//plot->resize(640, 480);
-	plot->graph(0)->rescaleAxes();
+	plot->rescaleAxes();
+plot->replot();
+
+	predikceVivojeTep.clear();
+	predikceVivojeTepCas.clear();
+	double pomer = (tepMiskyA - tepMiskyAOld)/timAddSec;
+	dtTep predN =  tepMiskyA;
+	QString lll ;
+	predikceVivojeTepCas.push_back(timSecund );
+	predikceVivojeTep.push_back(predN);
+
+	for (int i = timAddSec ; i < 30; i+= timAddSec)
+	{
+		predikceVivojeTepCas.push_back(timSecund +  i);
+		pomer += timAddSec*(tepMaxOhrev_s*oA - tepZtrata_s);
+		predN += pomer*timAddSec;
+		lll += QString::number(predN);
+		lll += QString(";");
+		predikceVivojeTep.push_back(predN);
+	}
+	teplotaABoxName.setText(lll);
+		plot->graph(1)->setData(predikceVivojeTepCas, predikceVivojeTep);
+	//plot->resize(640, 480);
+	//plot->graph(1)->rescaleAxes();
+	plot->rescaleAxes();
+	
+tepMiskyAOld = tepMiskyA;
+
+
 	plot->replot();
 
 	});
