@@ -8,6 +8,7 @@ INCLUDEPATH += .
 QT += widgets
 QT += serialport
 QT += gamepad
+QT += network printsupport 
 
 # The following define makes your compiler warn you if you use any
 # feature of Qt which has been marked as deprecated (the exact warnings
@@ -21,6 +22,6 @@ DEFINES += QT_DEPRECATED_WARNINGS
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
 # Input
-HEADERS += definice.h protokolKomunikace.h
-SOURCES += main.cpp
+HEADERS += definice.h protokolKomunikace.h qcustomplot.h
+SOURCES += main.cpp qcustomplot.cpp
 

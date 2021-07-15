@@ -24,6 +24,7 @@
 //include knihoven
 #include "definice.h"//Spolecny soubor
 #include "protokolKomunikace.h"
+#include "qcustomplot.h"
 
 
 //main
