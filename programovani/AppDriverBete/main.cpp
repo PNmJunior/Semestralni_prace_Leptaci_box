@@ -47,6 +47,8 @@ int main(int argc, char ** argv)
 	QHBoxLayout svetloABox;//kontrola osvetleni misky A
 	QHBoxLayout svetloBBox;//kontrola osvetleni misky B
 	QHBoxLayout teplotaABox;//kontrola ohrevu misky A
+	QHBoxLayout teplotaAGrafBox;//Texty k grafu
+	QVBoxLayout teplotaAGrafBox2;//grafu
 	QHBoxLayout ohrevABox;//kontrola teploty misky A
 	QHBoxLayout ohrevBBox;//kontrola teploty misky B
 	QHBoxLayout teplotaVBox;//teplota v Leptacim boxu
@@ -217,13 +219,16 @@ int main(int argc, char ** argv)
 	teplotaVBox.addWidget(&indikVnejTep);
 
 	//graf
-		long timSecund = 0;
+	long timSecund = 0;
 	int timAddSec = 2;
-	double tepZtrata_s = 0.0001;
-	double tepMaxOhrev_s = 0.5/255;
+	double tepZtrata_s = 0.0005;
+	double tepMaxOhrev_s = (1/60)/255;
 	dtTep tepMiskyA;
 	dtTep tepMiskyAOld;
 	int oA;
+	int timPredikce_s = 60;
+	int timDatZob_s = 60;
+	int pocetKtokuGrafu = timDatZob_s/timAddSec;
 	QVector<double> zaznamTeploty;
 	QVector<double> zaznamTeplotyCas;
 	QVector<double> predikceVivojeTep;
@@ -232,10 +237,25 @@ int main(int argc, char ** argv)
 	plot->addGraph();
 	plot->addGraph();
 	plot->graph(0)->setPen(QPen(Qt::blue));
+	plot->graph(0)->setName("Teplota");
 	plot->graph(1)->setPen(QPen(Qt::red));
+	plot->graph(1)->setName("Predikce");
 	
-	plot->resize(640, 480);
+	//plot->resize(10000, 8000);
+	plot->setMinimumSize(50,150);
 	plot->replot();
+
+	QLabel teplotaAGrafBoxNadpis("Teplota v grafu",&w), teplotaAGrafBoxTeplota("Namerena teplota",&w), teplotaAGrafBoxPredikce("Predikovana teplota",&w);
+	teplotaAGrafBoxNadpis.setFont(fNadpis);
+	teplotaAGrafBoxTeplota.setStyleSheet("QLabel {  color : blue; }");
+	teplotaAGrafBoxPredikce.setStyleSheet("QLabel {  color : red; }");
+
+
+	teplotaAGrafBox.addWidget(&teplotaAGrafBoxNadpis);
+	teplotaAGrafBox.addWidget(&teplotaAGrafBoxTeplota);
+	teplotaAGrafBox.addWidget(&teplotaAGrafBoxPredikce);
+	//teplotaAGrafBox2.addWidget(plot,10000);
+	
 
 
 
@@ -253,6 +273,8 @@ int main(int argc, char ** argv)
 	vbox.addLayout(&miskaABox);
 	vbox.addLayout(&svetloABox);
 	vbox.addLayout(&teplotaABox);
+	vbox.addLayout(&teplotaAGrafBox);
+	vbox.addLayout(&teplotaAGrafBox2);
 	vbox.addWidget(plot);
 	vbox.addLayout(&ohrevABox);
 	vbox.addWidget(&oddelMiskaA);
@@ -316,7 +338,7 @@ int main(int argc, char ** argv)
 					if(protKom.answerIdentifikace())//protKom.answerIdentifikace()
 					{
 						beta = QString("Leptaci box pripojen na portu: ")+serPort.portName();
-						tim1.start(2000);//Nastaveni casovace, ktery pravidelne bude aktualizovat data.
+						tim1.start(timAddSec * 1000);//Nastaveni casovace, ktery pravidelne bude aktualizovat data.
 					}
 					else
 					{
@@ -439,42 +461,46 @@ int main(int argc, char ** argv)
 		miskaBBoxAnswer.click();
 		tepMiskyA = protKom.answerDouble(modTepNadrz);
 		indikNadrze.display(QString("%1 C").arg(tepMiskyA));
+		
+		
+		//Vykresleni grafu...
+		
 		zaznamTeploty.push_back(tepMiskyA);
-		timSecund += timAddSec;
+		
 		zaznamTeplotyCas.push_back(timSecund);
-		//plot->graph(0)->deleteLater();
-	plot->graph(0)->setData(zaznamTeplotyCas, zaznamTeploty);
-	//plot->resize(640, 480);
-	plot->rescaleAxes();
-plot->replot();
+		
+		if (zaznamTeplotyCas.size()>pocetKtokuGrafu)
+		{
+			zaznamTeplotyCas.remove(0);
+			zaznamTeploty.remove(0);
+		}
+		
+		plot->graph(0)->setData(zaznamTeplotyCas, zaznamTeploty);
+		plot->rescaleAxes();
+		plot->replot();
 
-	predikceVivojeTep.clear();
-	predikceVivojeTepCas.clear();
-	double pomer = (tepMiskyA - tepMiskyAOld)/timAddSec;
-	dtTep predN =  tepMiskyA;
-	QString lll ;
-	predikceVivojeTepCas.push_back(timSecund );
-	predikceVivojeTep.push_back(predN);
-
-	for (int i = timAddSec ; i < 30; i+= timAddSec)
-	{
-		predikceVivojeTepCas.push_back(timSecund +  i);
-		pomer += timAddSec*(tepMaxOhrev_s*oA - tepZtrata_s);
-		predN += pomer*timAddSec;
-		lll += QString::number(predN);
-		lll += QString(";");
+		predikceVivojeTep.clear();
+		predikceVivojeTepCas.clear();
+		double pomer = (tepMiskyA - tepMiskyAOld)/timAddSec;
+		dtTep predN =  tepMiskyA;
+		predikceVivojeTepCas.push_back(timSecund );
 		predikceVivojeTep.push_back(predN);
-	}
-	teplotaABoxName.setText(lll);
-		plot->graph(1)->setData(predikceVivojeTepCas, predikceVivojeTep);
-	//plot->resize(640, 480);
-	//plot->graph(1)->rescaleAxes();
-	plot->rescaleAxes();
-	
-tepMiskyAOld = tepMiskyA;
+
+		for (int i = timAddSec ; i < timPredikce_s; i+= timAddSec)
+		{
+			predikceVivojeTepCas.push_back(timSecund +  i);
+			pomer += timAddSec*(tepMaxOhrev_s*oA - tepZtrata_s);
+			predN += pomer*timAddSec;
+			predikceVivojeTep.push_back(predN);
+		}
+			plot->graph(1)->setData(predikceVivojeTepCas, predikceVivojeTep);
+		plot->rescaleAxes();
+		
+		tepMiskyAOld = tepMiskyA;
 
 
-	plot->replot();
+		plot->replot();
+		timSecund += timAddSec;
 
 	});
 
