@@ -219,13 +219,14 @@ int main(int argc, char ** argv)
 	teplotaVBox.addWidget(&indikVnejTep);
 
 	//graf
+	//potrebne promenne
 	long timSecund = 0;
-	int timAddSec = 2;
-	double tepZtrata_s = 0.0005;
-	double tepMaxOhrev_s = (1/60)/255;
+	double timAddSec = 2;
+	double tepZtrata_s = 0.005;
+	double tepMaxOhrev_s = (0.1)/255;
 	dtTep tepMiskyA;
 	dtTep tepMiskyAOld;
-	int oA;
+	int oA2;
 	int timPredikce_s = 60;
 	int timDatZob_s = 60;
 	int pocetKtokuGrafu = timDatZob_s/timAddSec;
@@ -418,8 +419,8 @@ int main(int argc, char ** argv)
 	QObject::connect(&miskaABoxAnswer, QPushButton::clicked, [&](){
 		//teplotaABoxHodnota.setText(QString::number(protKom.answerDouble(modTepNadrz)));//Zobrazeni teploty
 		//indikNadrze.display(QString("%1 C").arg(protKom.answerDouble(modTepNadrz)));
-		oA = protKom.answerInt(modOhrevA);//informaci o Ohrevu
-		if (oA == 0 || oA == -1)
+		oA2 = protKom.answerInt(modOhrevA);//informaci o Ohrevu
+		if (oA2 == 0 || oA2 == -1)
 		{
 			ohrevABoxStav.setText("Chlazeni");
 		}
@@ -488,8 +489,10 @@ int main(int argc, char ** argv)
 
 		for (int i = timAddSec ; i < timPredikce_s; i+= timAddSec)
 		{
+			double aA = oA2;
 			predikceVivojeTepCas.push_back(timSecund +  i);
-			pomer += timAddSec*(tepMaxOhrev_s*oA - tepZtrata_s);
+			pomer += timAddSec*(tepMaxOhrev_s*aA - tepZtrata_s);
+			//pomer += 2*(0.001*aA - 0.01);
 			predN += pomer*timAddSec;
 			predikceVivojeTep.push_back(predN);
 		}
