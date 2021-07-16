@@ -257,7 +257,7 @@ void MotorZC()
       for(int i = 0; i <= 32;  i++)
       {
         MotorZindex(i%4);
-        delay(10);
+        delay(7);
       }
     } 
     else if(novi == dolumotorZ)
