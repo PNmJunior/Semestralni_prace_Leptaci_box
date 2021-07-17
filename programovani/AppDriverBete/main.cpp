@@ -20,6 +20,7 @@
 #include <QFrame>
 #include <QLCDNumber>
 #include <QThread> 
+#include <QDoubleSpinBox>
 
 //include knihoven
 #include "definice.h"//Spolecny soubor
@@ -120,11 +121,16 @@ int main(int argc, char ** argv)
 
 
 	//miska A
-	QLabel miskaABoxText("Miska A:",&w);
+	QLabel miskaABoxText("Miska A:",&w),miskaABoxMaxTepText("Nastav maximalni teplotu:",&w);
+	QDoubleSpinBox miskaABoxMaxSpin(&w);
+	miskaABoxMaxSpin.setRange(minTep,maxTep);
+	miskaABoxMaxSpin.setStyleSheet("background-color: white;");
 	miskaABoxText.setFont(fNadpis);
 	QPushButton miskaABoxAnswer("Aktualizace");
 	miskaABox.addWidget(&miskaABoxText);
 	miskaABox.addWidget(&miskaABoxAnswer);
+	miskaABox.addWidget(&miskaABoxMaxTepText);
+	miskaABox.addWidget(&miskaABoxMaxSpin);
 
 
 	//Regulace podsviceni
@@ -457,7 +463,18 @@ int main(int argc, char ** argv)
 	//Pravidelna aktualizace udaju: teplota okoli, teplota misky A, ohrevA, ohrevB
 	QObject::connect(&tim1, QTimer::timeout, [&](){
 		//teplotaVBoxHodnota.setText(QString::number(protKom.answerDouble(modTepOkoli)));
-		indikVnejTep.display(QString("%1 C").arg(protKom.answerDouble(modTepOkoli)));
+		double tepA = protKom.answerDouble(modTepOkoli);
+		indikVnejTep.display(QString("%1 C").arg(tepA));
+		if (tepA >= miskaABoxMaxSpin.value())
+		{
+			ohrevABoxSlider.valueChanged(0),
+			miskaABoxMaxSpin.setStyleSheet("background-color: red;");
+		}
+		else
+		{
+			miskaABoxMaxSpin.setStyleSheet("background-color: white;");
+		}
+		
 		miskaABoxAnswer.click();
 		miskaBBoxAnswer.click();
 		tepMiskyA = protKom.answerDouble(modTepNadrz);
