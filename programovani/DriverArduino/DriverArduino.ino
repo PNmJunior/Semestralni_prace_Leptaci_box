@@ -8,7 +8,7 @@ Arduino je uvnitr Leptaciho boxu, kde zastava funkci microkontroleru.
 #include <avr/wdt.h>
 #include <Wire.h>
 #include <Adafruit_MLX90614.h>
-#include "definice.h"
+#include "definice.h"//Spolecny soubor pro Aplikaci
 
 //Seznam zapojenych pinu:
 #define pinOhrevA 5
@@ -36,7 +36,6 @@ Adafruit_MLX90614 mlx = Adafruit_MLX90614();
 char mode;//instrukce
 // default String
 String value = String(PrazdnePole);//Pouzivan jako predavac informace o datech v instrukci.
-String dotaz = String(Dotaz);
 // inicializace globalnich promennych
 dtOhrev ohrevA;
 dtOhrev ohrevB;
@@ -56,7 +55,6 @@ void setup()
 {
   Serial.begin(9600);// inicializace UART
   Serial.flush();
-  //Serial.print('l');
   mlx.begin(); // inicializace teploměru MLX z knihovny
 
   //Nastaveni pinu
@@ -82,7 +80,7 @@ void setup()
   svetloC =0;
   //MotorX: default:0
   motorX = 0;
-  //Svetlo: Aktivni vyuziti, rozsah mezi 0 a 4
+  //Svetlo: Aktivni vyuziti, prepinani mezi 0 (stopMotorZ) a 3 (vibMotorZOn)
   motorZ = 0;
   //Systemove promenne pro motor X
   motorZkrok=0;
@@ -124,7 +122,7 @@ void loop() {
       MotorXB()  ;
       break; 
       case modMotorZ:
-      MotorZC()  ;
+      MotorZ()  ;
       break; 
       case modTepNadrz:
       TepNadrzB();
@@ -236,12 +234,12 @@ int TepControl(dtTep a)//kontrola chyb teplomeru a uprava formatu
 
 
 /*
-Metoda MotorZC() ma dva rozdilne zamereni
+Metoda MotorZ() ma dva rozdilne zamereni
 -Posunuje o predem difinovany pocet kroku motor Z. Po tuto dobu zastaveno zpracovani novych instrukci.
 --Nefunkguje prikaz stopMotorZ
 -Nastavy MotorZrun() na generator vibraci (vibMotorZOn) nebo vibrace vypne (stopMotorZ).
 */
-void MotorZC()
+void MotorZ()
 {
   if(notSend(modMotorZ,motorZ))
   {
@@ -313,6 +311,7 @@ void MotorZindex(int index)//Nastaveni pinu u motoru Z.
 //False: Nalezeno "????" a zpracovano. Zakaz delat dalsi ukony.
 bool notSend(char typ, int data)
 {
+  //Za predpokladu, ze se ve value nachazi bud ctyrmistne cislo nebo "????", neni potreba pro '?' hldedat v kazdem ze ctyr pozic.
   if(value.charAt(2) == '?')
   {
   char c[6];

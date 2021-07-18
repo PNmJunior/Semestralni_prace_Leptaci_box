@@ -21,8 +21,8 @@
 #include <QThread> 
 #include <QDoubleSpinBox>
 
-//inicializace mych kmihoven
-#include "definice.h"//Spolecny soubor
+//inicializace souboru...
+#include "definice.h"//Spolecny soubor pro Arduino
 #include "protokolKomunikace.h"//komunikacni protokol
 #include "qcustomplot.h"//graf
 
@@ -31,10 +31,10 @@
 int main(int argc, char ** argv)
 {
 	QApplication a(argc, argv);
-	QTimer tim1 ;//pravidelna aktualizace dat
-	QList<QSerialPortInfo> seznPort = QSerialPortInfo::availablePorts();//seznam vsech portu v PC
-	QSerialPortInfo vyberPort;//Port na kterem je Leptaci box
-	QSerialPort serPort;//inicializace vybraneho portu
+	QTimer timerAkt1 ;//pravidelna aktualizace dat
+	QList<QSerialPortInfo> seznamPort = QSerialPortInfo::availablePorts();//seznam vsech portu v PC
+	QSerialPortInfo vybranyPort;//Port na kterem je Leptaci box
+	QSerialPort serialovyPort;//inicializace vybraneho portu
 	QWidget w;
 	QVBoxLayout vbox;
 	//Oblasti grafiky
@@ -51,7 +51,7 @@ int main(int argc, char ** argv)
 	QVBoxLayout teplotaAGrafBox2;//grafu
 	QHBoxLayout ohrevABox;//kontrola teploty misky A
 	QHBoxLayout ohrevBBox;//kontrola teploty misky B
-	QHBoxLayout teplotaVBox;//teplota v Leptacim boxu
+	QHBoxLayout vnijsiTeplotaBox;//teplota v Leptacim boxu
 
 	
 	//font pro indikaci Ohrivani
@@ -124,6 +124,7 @@ int main(int argc, char ** argv)
 	QDoubleSpinBox miskaABoxMaxSpin(&w);
 	miskaABoxMaxSpin.setRange(minTep,maxTep);
 	miskaABoxMaxSpin.setStyleSheet("background-color: white;");
+	miskaABoxMaxSpin.setValue(40.0);
 	miskaABoxText.setFont(fNadpis);
 	QPushButton miskaABoxAnswer("Aktualizace");
 	miskaABox.addWidget(&miskaABoxText);
@@ -144,14 +145,14 @@ int main(int argc, char ** argv)
 	svetloABox.addWidget(&svetloABoxSlider);
 
 
-	//Indikace teploty nadrze
-	QLCDNumber indikNadrze(7,&w);
-	indikNadrze.setSegmentStyle(QLCDNumber::Flat);
-	indikNadrze.setMinimumHeight(100);
-	indikNadrze.setFixedWidth(400);
+	//Indikace teploty misky
+	QLCDNumber teplotaABoxIndikatorTeploty(7,&w);
+	teplotaABoxIndikatorTeploty.setSegmentStyle(QLCDNumber::Flat);
+	teplotaABoxIndikatorTeploty.setMinimumHeight(100);
+	teplotaABoxIndikatorTeploty.setFixedWidth(400);
 	QLabel teplotaABoxName("Teplota: ",&w); 
 	teplotaABox.addWidget(&teplotaABoxName);
-	teplotaABox.addWidget(&indikNadrze);
+	teplotaABox.addWidget(&teplotaABoxIndikatorTeploty);
 	
 
 
@@ -210,32 +211,32 @@ int main(int argc, char ** argv)
 
 
 	//Indikator Vnejsi teploty
-	QLabel teplotaVBoxName("Vnejsi teplota: ",&w), teplotaVBoxEmpty(" ",&w); 
-	teplotaVBoxName.setFont(fNadpis);
-	teplotaVBox.addWidget(&teplotaVBoxEmpty);
-	QLCDNumber indikVnejTep(7,&w);
-	indikVnejTep.setSegmentStyle(QLCDNumber::Flat);
-	indikVnejTep.setMinimumHeight(100);
-	indikVnejTep.setFixedWidth(400);
-	teplotaVBox.addWidget(&indikVnejTep);
+	QLabel vnijsiTeplotaBoxName("Vnejsi teplota: ",&w), vnijsiTeplotaBoxEmpty(" ",&w); 
+	vnijsiTeplotaBoxName.setFont(fNadpis);
+	vnijsiTeplotaBox.addWidget(&vnijsiTeplotaBoxEmpty);
+	QLCDNumber vnijsiTeplotaBoxIndikator(7,&w);
+	vnijsiTeplotaBoxIndikator.setSegmentStyle(QLCDNumber::Flat);
+	vnijsiTeplotaBoxIndikator.setMinimumHeight(100);
+	vnijsiTeplotaBoxIndikator.setFixedWidth(400);
+	vnijsiTeplotaBox.addWidget(&vnijsiTeplotaBoxIndikator);
 
 	//graf vyvoje a predikce teploty v misce A
 	//potrebne promenne Eulerovy metody
 	int ohrevMiskyA;//promenna pro ulozeni intenzity ohrevu misky
-	long timSecund = 0;//Casova osa grafu
-	double timAddSec = 2;//cas jednoho kroku
-	double tepZtrata_s = 0.005;//velikost ubytku teploty 
-	double tepMaxOhrev_s = (0.1)/255;//velikost ohrevu misky pri maximalnimu ohrevu
-	dtTep tepMiskyA;//hodnota pro ulozeni teploty misky
-	dtTep tepMiskyAOld = minTep;//predchozi udaj o teplote misky
-	int timPredikce_s = 60;//Cas zobrazeni predikce v grafu
-	int timDatZob_s = 60;//cas zobrazeni poslednich dat za ...
-	int pocetKrokuGrafu = timDatZob_s/timAddSec;
+	long gTimeSecund = 0;//Casova osa grafu
+	double gTimeAddSec = 2;//cas jednoho kroku
+	double gPredTeplotaZtrata_s = 0.005;//velikost ubytku teploty 
+	double gPredTeplotaMaxOhrev_s = (0.1)/255;//velikost ohrevu misky pri maximalnimu ohrevu
+	dtTep gTeplotaMiskyA;//hodnota pro ulozeni teploty misky
+	dtTep gTeplotaMiskyAOld = minTep;//predchozi udaj o teplote misky
+	int gTimePredikce_s = 60;//Cas zobrazeni predikce v grafu
+	int gTimeDataZobrazeni_s = 60;//cas zobrazeni poslednich dat za ...
+	int gPocetKrokuGrafu = gTimeDataZobrazeni_s/gTimeAddSec;
 	//Data pro graf
-	QVector<double> zaznamTeploty;
-	QVector<double> zaznamTeplotyCas;
-	QVector<double> predikceVivojeTep;
-	QVector<double> predikceVivojeTepCas;
+	QVector<double> gZaznamTeploty;
+	QVector<double> gZaznamTeplotyCas;
+	QVector<double> gPredikceVivojeTep;
+	QVector<double> gPredikceVivojeTepCas;
 	//inicializace grafu
 	QCustomPlot *plot = new QCustomPlot(&w);
 	plot->addGraph();
@@ -278,14 +279,14 @@ int main(int argc, char ** argv)
 	vbox.addLayout(&svetloBBox);
 	vbox.addLayout(&ohrevBBox);
 	vbox.addWidget(&oddelMiskaB);
-	vbox.addWidget(&teplotaVBoxName);
-	vbox.addLayout(&teplotaVBox);
+	vbox.addWidget(&vnijsiTeplotaBoxName);
+	vbox.addLayout(&vnijsiTeplotaBox);
 	
 	//pridani do QWidget
 	w.setLayout(&vbox);
 
 	//inicializace moji knihovny pro komunikaci
-	protokolKomunikace protKom = protokolKomunikace(&serPort,&potrSerialSetBoxStatus);
+	protokolKomunikace protKom = protokolKomunikace(&serialovyPort,&potrSerialSetBoxStatus);
 
 
 	//Hlidani signalu:
@@ -309,46 +310,45 @@ int main(int argc, char ** argv)
 		{
 			try
 			{
-				vyberPort = infos.at( potrSerialSetBoxCombSeznamPortu.currentIndex());//Vyber Portu
-				serPort.setPort(vyberPort);//Nastavit port podle portInfo
-				serPort.open(QIODevice::ReadWrite);//druh komunikace
-				serPort.setBaudRate(QSerialPort::Baud9600);//rychlost
+				vybranyPort = infos.at( potrSerialSetBoxCombSeznamPortu.currentIndex());//Vyber Portu
+				serialovyPort.setPort(vybranyPort);//Nastavit port podle portInfo
+				serialovyPort.open(QIODevice::ReadWrite);//druh komunikace
+				serialovyPort.setBaudRate(QSerialPort::Baud9600);//rychlost
 				//Dalsi parametry potrebne pro spravne fungovani serioveho portu
-				serPort.setDataBits(QSerialPort::Data8);
-				serPort.setParity(QSerialPort::NoParity);
-				serPort.setStopBits(QSerialPort::OneStop);
-				serPort.setFlowControl(QSerialPort::NoFlowControl);
-				while (!serPort.isOpen())//Otevreni portu
+				serialovyPort.setDataBits(QSerialPort::Data8);
+				serialovyPort.setParity(QSerialPort::NoParity);
+				serialovyPort.setStopBits(QSerialPort::OneStop);
+				serialovyPort.setFlowControl(QSerialPort::NoFlowControl);
+				while (!serialovyPort.isOpen())//Otevreni portu
 				{
-					serPort.open(QIODevice::ReadWrite);
+					serialovyPort.open(QIODevice::ReadWrite);
 				}
-				if(!(serPort.isWritable()&&serPort.isOpen()))//Kontrola otevreni portu
+				if(!(serialovyPort.isWritable()&&serialovyPort.isOpen()))//Kontrola otevreni portu
 				{
-					protKom.notOpenWrite();
+					protKom.notOpenInformation();
 				}
 				else//Uspesne nastavena komunikace
 				{
-					QString beta = QString("Komunikace s portem: ")+serPort.portName();//Informace o navazani spojeni
+					QString beta = QString("Komunikace s portem: ")+serialovyPort.portName();//Informace o navazani spojeni
 					potrSerialSetBoxStatus.setText(beta);
 					QThread::sleep(2);//Pro Navazani spojeni se zarizenim
 					if(protKom.answerIdentifikace())//protKom.answerIdentifikace()
 					{
-						beta = QString("Leptaci box pripojen na portu: ")+serPort.portName();
-						tim1.start(timAddSec * 1000);//Nastaveni casovace, ktery pravidelne bude aktualizovat data.
+						beta = QString("Leptaci box pripojen na portu: ")+serialovyPort.portName();
+						timerAkt1.start(gTimeAddSec * 1000);//Nastaveni casovace, ktery pravidelne bude aktualizovat data.
 					}
 					else
 					{
-						beta = QString("Na Portu %1 neni Leptaci box").arg(serPort.portName());
-						//serPort.disconnect();
-						serPort.close();
+						beta = QString("Na Portu %1 neni Leptaci box").arg(serialovyPort.portName());
+						serialovyPort.close();
 					}
 					potrSerialSetBoxStatus.setText(beta);
 				}
 			}
 			catch(...)
 			{
-				protKom.notOpenWrite();
-				serPort.close();
+				protKom.notOpenInformation();
+				serialovyPort.close();
 			}
 		}
 	});
@@ -413,9 +413,13 @@ int main(int argc, char ** argv)
 	//Odeslani dotazu na: teplotu misky A; stav Ohrevu A a od toho nastaveni upozorneni. 
 	QObject::connect(&miskaABoxAnswer, QPushButton::clicked, [&](){
 		//teplotaABoxHodnota.setText(QString::number(protKom.answerDouble(modTepNadrz)));//Zobrazeni teploty
-		//indikNadrze.display(QString("%1 C").arg(protKom.answerDouble(modTepNadrz)));
+		//teplotaABoxIndikatorTeploty.display(QString("%1 C").arg(protKom.answerDouble(modTepNadrz)));
 		ohrevMiskyA = protKom.answerInt(modOhrevA);//informaci o Ohrevu
-		if (ohrevMiskyA == 0 || ohrevMiskyA == -1)
+		if(ohrevMiskyA == -1)
+		{
+			ohrevABoxStav.setText("??????");
+		}
+		if (ohrevMiskyA == 0)
 		{
 			ohrevABoxStav.setText("Chlazeni");
 		}
@@ -430,7 +434,11 @@ int main(int argc, char ** argv)
 	QObject::connect(&miskaBBoxAnswer, QPushButton::clicked, [&](){
 		//teplomer neobsahuje
 		int ohrev = protKom.answerInt(modOhrevB);
-		if (ohrev == 0 || ohrev == -1)
+		if(ohrev == -1)
+		{
+			ohrevBBoxStav.setText("??????");
+		}
+		if (ohrev == 0)
 		{
 			ohrevBBoxStav.setText("Chlazeni");
 		}
@@ -442,18 +450,18 @@ int main(int argc, char ** argv)
 	});
 	//Odeslani Dotazu: svetloA, svetloB, teplota okoli, ohrevA, teplota misky A, ohrev B
 	QObject::connect(&BoxButAnswerAll, QPushButton::clicked, [&](){
-		svetloABoxSlider.setValue(protKom.answerSvetlo(modSvetloA));
-		svetloBBoxSlider.setValue(protKom.answerSvetlo(modSvetloB));
+		svetloABoxSlider.setValue(protKom.answerProcenta(modSvetloA));
+		svetloBBoxSlider.setValue(protKom.answerProcenta(modSvetloB));
 		//teplotaVBoxHodnota.setText(QString::number(protKom.answerDouble(modTepOkoli)));
-		indikVnejTep.display(QString("%1 C").arg(protKom.answerDouble(modTepOkoli)));
+		vnijsiTeplotaBoxIndikator.display(QString("%1 C").arg(protKom.answerDouble(modTepOkoli)));
 		miskaABoxAnswer.click();
 		miskaBBoxAnswer.click();
 	});
 	//Pravidelna aktualizace udaju: teplota okoli, teplota misky A, ohrevA, ohrevB
-	QObject::connect(&tim1, QTimer::timeout, [&](){
+	QObject::connect(&timerAkt1, QTimer::timeout, [&](){
 		//teplotaVBoxHodnota.setText(QString::number(protKom.answerDouble(modTepOkoli)));
 		double tepA = protKom.answerDouble(modTepOkoli);
-		indikVnejTep.display(QString("%1 C").arg(tepA));
+		vnijsiTeplotaBoxIndikator.display(QString("%1 C").arg(tepA));
 		//Pokud je teplota vyssi nez nastaveno, tak vypne ohrevA a zcervena SpinBox.
 		if (tepA >= miskaABoxMaxSpin.value())
 		{
@@ -468,51 +476,51 @@ int main(int argc, char ** argv)
 		
 		miskaABoxAnswer.click();
 		miskaBBoxAnswer.click();
-		tepMiskyA = protKom.answerDouble(modTepNadrz);
-		indikNadrze.display(QString("%1 C").arg(tepMiskyA));
+		gTeplotaMiskyA = protKom.answerDouble(modTepNadrz);
+		teplotaABoxIndikatorTeploty.display(QString("%1 C").arg(gTeplotaMiskyA));
 		
 		
 		//Graf
 		//pridani novych udaju o teplote
-		zaznamTeploty.push_back(tepMiskyA);
-		zaznamTeplotyCas.push_back(timSecund);
+		gZaznamTeploty.push_back(gTeplotaMiskyA);
+		gZaznamTeplotyCas.push_back(gTimeSecund);
 		
-		if (zaznamTeplotyCas.size()>pocetKrokuGrafu)//Vymaze nadbytecna data o teplote
+		if (gZaznamTeplotyCas.size()>gPocetKrokuGrafu)//Vymaze nadbytecna data o teplote
 		{
-			zaznamTeplotyCas.remove(0);
-			zaznamTeploty.remove(0);
+			gZaznamTeplotyCas.remove(0);
+			gZaznamTeploty.remove(0);
 		}
 		//Vykresleni grafu
-		plot->graph(0)->setData(zaznamTeplotyCas, zaznamTeploty);
+		plot->graph(0)->setData(gZaznamTeplotyCas, gZaznamTeploty);
 		plot->rescaleAxes();
 		plot->replot();
 
 		//Vymazani predikce
-		predikceVivojeTep.clear();
-		predikceVivojeTepCas.clear();
+		gPredikceVivojeTep.clear();
+		gPredikceVivojeTepCas.clear();
 
-		double vektTep = (tepMiskyA - tepMiskyAOld)/timAddSec;//pocatecny vektor teplty
-		dtTep predN =  tepMiskyA;//pocatecni predikovana hodnota
+		double vektTep = (gTeplotaMiskyA - gTeplotaMiskyAOld)/gTimeAddSec;//pocatecny vektor teplty
+		dtTep predN =  gTeplotaMiskyA;//pocatecni predikovana hodnota
 		//pridani pocatecnich hodnot predikce do grafu
-		predikceVivojeTepCas.push_back(timSecund );
-		predikceVivojeTep.push_back(predN);
+		gPredikceVivojeTepCas.push_back(gTimeSecund );
+		gPredikceVivojeTep.push_back(predN);
 		//Vypocet
-		for (int i = timAddSec ; i < timPredikce_s; i+= timAddSec)
+		for (int i = gTimeAddSec ; i < gTimePredikce_s; i+= gTimeAddSec)
 		{
 			//Eulerova metoda
 			double aA = ohrevMiskyA;
-			predikceVivojeTepCas.push_back(timSecund +  i);
-			vektTep += timAddSec*(tepMaxOhrev_s*aA - tepZtrata_s);
-			predN += vektTep*timAddSec;
-			predikceVivojeTep.push_back(predN);
+			gPredikceVivojeTepCas.push_back(gTimeSecund +  i);
+			vektTep += gTimeAddSec*(gPredTeplotaMaxOhrev_s*aA - gPredTeplotaZtrata_s);
+			predN += vektTep*gTimeAddSec;
+			gPredikceVivojeTep.push_back(predN);
 		}
 		//vykresleni predikce
-		plot->graph(1)->setData(predikceVivojeTepCas, predikceVivojeTep);
+		plot->graph(1)->setData(gPredikceVivojeTepCas, gPredikceVivojeTep);
 		plot->rescaleAxes();
 		plot->replot();
 		//Nastaveni promennych do dalsiho kroku.
-		timSecund += timAddSec;
-		tepMiskyAOld = tepMiskyA;
+		gTimeSecund += gTimeAddSec;
+		gTeplotaMiskyAOld = gTeplotaMiskyA;
 
 	});
 

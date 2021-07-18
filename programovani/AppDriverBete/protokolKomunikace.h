@@ -5,132 +5,133 @@
 #include <QLabel>
 #include <qmath.h>
 #include <QThread>  
-#include "definice.h"
+#include "definice.h"//Spojecny soubor pro Arduino
 
 
 class protokolKomunikace
 {
 private:
-    QSerialPort *serP;//ukazatel na seriovy port
+    QSerialPort *serialPort;//ukazatel na seriovy port
     QLabel *textLabel;//ukazatel na QLabel, kde bude informovat o stavu otevreni portu. Informovani o chybe...
     
 public:
-    protokolKomunikace(QSerialPort *Ser_p, QLabel *textL);//Inicializace
+    protokolKomunikace(QSerialPort *SerialP, QLabel *textL);//Inicializace
     ~protokolKomunikace();
     QString notOpen();//Text s informaci, ktery port nejde otevrit
-    void notOpenWrite();//Vypise text o neotevreni portu na QLabel
-    void send(QByteArray j);//Odesle data na vstupu
+    void notOpenInformation();//Vypise text o neotevreni portu na QLabel
+    void send(QByteArray sendText);//Odesle data na vstupu
     //bool: kontola vstupnich dat
-    bool sendMotX(dtMotorX a);//odeslani instrukci pro MotorX
-    bool sendMotZ(dtMotorZ a);//odeslani instrukci pro MotorZ
-    bool sendSvetlo(char typ,int val);//odeslani instrukci pro Svetlo, vstup: mode, 0-255
-    bool sendSvetloProc(char typ, int proc);//prevede podle vzorce procenta na rozsah 0-255 a posle pres sendSvetlo
-    bool sendOhrev(char typ,int val);//odeslani instrukci pro Ohrev
+    bool sendMotX(dtMotorX smer);//odeslani instrukci pro MotorX
+    bool sendMotZ(dtMotorZ smer);//odeslani instrukci pro MotorZ
+    bool sendSvetlo(char mod_svetlo,int val);//odeslani instrukci pro Svetlo, vstup: mode, 0-255
+    bool sendSvetloProc(char mod_svetlo, int proc);//prevede podle vzorce procenta na rozsah 0-255 a posle pres sendSvetlo
+    bool sendOhrev(char mod_ohrev,int val);//odeslani instrukci pro Ohrev
     
-    QByteArray quest(char typ);//Odesle dotaz na vstupni mod a vystup je odpoved na otazku
-    QString answer( char typ);//Zkontroluje vystup z quest a prevede data na QString
-    int answerInt(char typ);//Prevede answer na INT
+    QByteArray quest(char mod_allKom);//Odesle dotaz na vstupni mod a vystup je odpoved na otazku
+    QString answer( char mod_allKom);//Zkontroluje vystup z quest a prevede data na QString
+    int answerInt(char mod_allKom);//Prevede answer na INT
     double answerDouble(char typ);//Prevede answer na DOUBLE
-    int answerSvetlo(char typ);//Prevede answer na svetlo ve formatu procenta -> 0-100
+    int answerProcenta(char mod_svetlo);//Prevede answer na svetlo ve formatu procenta -> 0-100
     bool answerIdentifikace();//True v pripade spravne odpovedi na Identifikacni otazku
 };
 
 
-protokolKomunikace::protokolKomunikace(QSerialPort *Ser_p, QLabel *textL)
+protokolKomunikace::protokolKomunikace(QSerialPort *SerialP, QLabel *textL)
 {
-    serP = Ser_p;
+    serialPort = SerialP;
     textLabel = textL;
 }
 
 
 protokolKomunikace::~protokolKomunikace()
 {
+    
 }
 
 
-void protokolKomunikace::send(QByteArray j)
+void protokolKomunikace::send(QByteArray sendText)
 {
     try
     {   
-        if(serP->isOpen())//Kontrola otevreni portu
+        if(serialPort->isOpen())//Kontrola otevreni portu
         {
-            serP->write(j);//Ulozeni do buffer
-            serP->flush();//Odeslani do Leptaciho boxu
+            serialPort->write(sendText);//Ulozeni do buffer
+            serialPort->flush();//Odeslani do Leptaciho boxu
         }
         else
         {
-            notOpenWrite();//Odeslani chybne hlasky
-            serP->close();
+            notOpenInformation();//Odeslani chybne hlasky
+            serialPort->close();
         }
     }
     catch(...)
     {
-        notOpenWrite();//Odeslani chybne hlasky
-        serP->close();
+        notOpenInformation();//Odeslani chybne hlasky
+        serialPort->close();
     }
 }
 
 
 QString protokolKomunikace::notOpen()
 {
-    return QString("Nelze komunikovat se serialovym portem: ") + serP->portName();
+    return QString("Nelze komunikovat se serialovym portem: ") + serialPort->portName();
 }
 
 
-void protokolKomunikace::notOpenWrite()
+void protokolKomunikace::notOpenInformation()
 {
     textLabel->setText(notOpen());
 }
 
 
-bool protokolKomunikace::sendMotX(dtMotorX a)
+bool protokolKomunikace::sendMotX(dtMotorX smer)
 {
     //Konntrola vstupu
-    if((a != levoBMotorX && a!=levoSMotorX) && ((a!=pravBMotorX && a!=pravSMotorX) && a!=stopMotorZ)){return false;}
+    if((smer != levoBMotorX && smer!=levoSMotorX) && ((smer!=pravBMotorX && smer!=pravSMotorX) && smer!=stopMotorZ)){return false;}
     //Format zpravy
-    QString alfa = QString("%1%2\n").arg((char)modMotorX).arg((int)a,4);
+    QString alfa = QString("%1%2\n").arg((char)modMotorX).arg((int)smer,4);
     send(alfa.toUtf8());//poslani dat
     return true;
 }
 
 
-bool protokolKomunikace::sendMotZ(dtMotorZ a)
+bool protokolKomunikace::sendMotZ(dtMotorZ smer)
 {
     //Kontrola vstupu
-    if((a != stopMotorZ &&  a!= vibMotorZOn) &&( a != dolumotorZ && a != nahorumotorZ )){return false;}
+    if((smer != stopMotorZ &&  smer!= vibMotorZOn) &&( smer != dolumotorZ && smer != nahorumotorZ )){return false;}
     //Format zpravy
-    QString alfa = QString("%1%2\n").arg((char)modMotorZ).arg((int)a,4);
+    QString alfa = QString("%1%2\n").arg((char)modMotorZ).arg((int)smer,4);
     send(alfa.toUtf8());//poslani dat
     return true;
 }
 
 
-bool protokolKomunikace::sendOhrev(char typ,int val)
+bool protokolKomunikace::sendOhrev(char mod_ohrev,int val)
 {
     //Kontrola vstupu
-    if((typ !=modOhrevA && typ != modOhrevB) || val > 255 ){ return false;}
+    if((mod_ohrev !=modOhrevA && mod_ohrev != modOhrevB) || val > 255 ){ return false;}
     //Format zpravy
-    QString alfa = QString("%1%2\n").arg((char)typ).arg((int)val,4);
+    QString alfa = QString("%1%2\n").arg((char)mod_ohrev).arg((int)val,4);
     send(alfa.toUtf8());//poslani dat
     return true;
 }
 
 
-bool protokolKomunikace::sendSvetlo(char typ,int val)
+bool protokolKomunikace::sendSvetlo(char mod_svetlo,int val)
 {
     //Kontrola vstupu
-    if((typ !=modSvetloA && (typ!= modSvetloB && typ != modSvetloC)) || val > maxSvetlo )
+    if((mod_svetlo !=modSvetloA && (mod_svetlo!= modSvetloB && mod_svetlo != modSvetloC)) || val > maxSvetlo )
     { 
         return false;
     }
     //Format zpravy
-    QString alfa = QString("%1%2\n").arg((char)typ).arg((int)val,4);
+    QString alfa = QString("%1%2\n").arg((char)mod_svetlo).arg((int)val,4);
     send(alfa.toUtf8());//poslani dat
     return true;
 }
 
 
-bool protokolKomunikace::sendSvetloProc(char typ, int proc)
+bool protokolKomunikace::sendSvetloProc(char mod_svetlo, int proc)
 {
     int i;
     //Kontrola vstupu
@@ -146,49 +147,49 @@ bool protokolKomunikace::sendSvetloProc(char typ, int proc)
         i = qPow(1.741,proc/10.0);
         if (i > maxSvetlo)i = maxSvetlo;//Kontrola preteceni
     }
-    return sendSvetlo(typ,i);//Odeslani
+    return sendSvetlo(mod_svetlo,i);//Odeslani
 }
 
 
-QByteArray protokolKomunikace::quest(char typ)
+QByteArray protokolKomunikace::quest(char mod_allKom)
 {
     try
     {
-        if(serP->isOpen() == false)//Kontrola otevreni portu
+        if(serialPort->isOpen() == false)//Kontrola otevreni portu
         {
-            notOpenWrite();
+            notOpenInformation();
             return QString(Problem).toUtf8();
         }
-        QString alfa = QString("%1%2\n").arg((char)typ).arg(Dotaz);//Formulace dotazu
+        QString alfa = QString("%1%2\n").arg((char)mod_allKom).arg(Dotaz);//Formulace dotazu
         send(alfa.toUtf8());//Poslani dotazu
-        serP->waitForBytesWritten();//cekani
-        serP->waitForReadyRead();//cekani
-        for (int i = 0; i <20 && serP->bytesAvailable()<6; i++)
+        serialPort->waitForBytesWritten();//cekani
+        serialPort->waitForReadyRead();//cekani
+        for (int i = 0; i <20 && serialPort->bytesAvailable()<6; i++)
         {
             textLabel->setText("cekam");
             QThread::msleep(100);
         }
-        if((serP->bytesAvailable()<6))
+        if((serialPort->bytesAvailable()<6))
         {
-            notOpenWrite();
-            serP->close();
+            notOpenInformation();
+            serialPort->close();
             return QString(Problem).toUtf8();
         }
-        return serP->read(6);//poslani odpovedi
+        return serialPort->read(6);//poslani odpovedi
     }
     catch(...)
     {
-        notOpenWrite();
-        serP->close();
+        notOpenInformation();
+        serialPort->close();
         return QString(Problem).toUtf8();
     }
 }
 
 
-QString protokolKomunikace::answer(char typ)
+QString protokolKomunikace::answer(char mod_allKom)
 {
-    QByteArray in = quest(typ);//Poslani otazky a ziskani odpovedi
-    if (typ != in.at(0))// kontola modu
+    QByteArray in = quest(mod_allKom);//Poslani otazky a ziskani odpovedi
+    if (mod_allKom != in.at(0))// kontola modu
     {
         return QString("-1");
     }
@@ -196,21 +197,21 @@ QString protokolKomunikace::answer(char typ)
 }
 
 
-int protokolKomunikace::answerInt(char typ)
+int protokolKomunikace::answerInt(char mod_allKom)
 {
-    return answer(typ).toInt();//prevod na INT
+    return answer(mod_allKom).toInt();//prevod na INT
 }
 
 
-double protokolKomunikace::answerDouble(char typ)
+double protokolKomunikace::answerDouble(char mod_allKom)
 {
-    return answer(typ).toDouble() / tepNas;//Prevod na desetinne cislo pro teplomer
+    return answer(mod_allKom).toDouble() / tepNas;//Prevod na desetinne cislo pro teplomer
 }
 
 
-int protokolKomunikace::answerSvetlo(char typ)
+int protokolKomunikace::answerProcenta(char mod_svetlo)
 {
-    int hod = answerInt(typ);//Nacteni typu
+    int hod = answerInt(mod_svetlo);//Nacteni typu
     if (hod == 0|| hod == -1)//vyple svetlo nebo chyba
     {
         return 0;
@@ -249,7 +250,6 @@ bool protokolKomunikace::answerIdentifikace()
     }   
     else
     {
-        //textLabel->setText(answer(modIdentifikace));
         return false;
     }
 }
