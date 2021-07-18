@@ -7,7 +7,6 @@ TARGET = AppDriverBete
 INCLUDEPATH += .
 QT += widgets
 QT += serialport
-QT += gamepad
 QT += network printsupport 
 
 # The following define makes your compiler warn you if you use any

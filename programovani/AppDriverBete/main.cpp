@@ -15,17 +15,16 @@
 #include <QFont>
 #include <QTimer>
 #include <QGridLayout>
-#include <QGamepad>
 #include <QLine>
 #include <QFrame>
 #include <QLCDNumber>
 #include <QThread> 
 #include <QDoubleSpinBox>
 
-//include knihoven
+//inicializace mych kmihoven
 #include "definice.h"//Spolecny soubor
-#include "protokolKomunikace.h"
-#include "qcustomplot.h"
+#include "protokolKomunikace.h"//komunikacni protokol
+#include "qcustomplot.h"//graf
 
 
 //main
@@ -120,7 +119,7 @@ int main(int argc, char ** argv)
 	joystick.addWidget(&motorXBoxRightB, 1,4);
 
 
-	//miska A
+	//miska A s nastavenim regulace ohrevu misky A
 	QLabel miskaABoxText("Miska A:",&w),miskaABoxMaxTepText("Nastav maximalni teplotu:",&w);
 	QDoubleSpinBox miskaABoxMaxSpin(&w);
 	miskaABoxMaxSpin.setRange(minTep,maxTep);
@@ -152,8 +151,6 @@ int main(int argc, char ** argv)
 	indikNadrze.setFixedWidth(400);
 	QLabel teplotaABoxName("Teplota: ",&w); 
 	teplotaABox.addWidget(&teplotaABoxName);
-	//teplotaABox.addWidget(&teplotaABoxHodnota);
-	//teplotaABox.addWidget(&teplotaABoxJednotka);
 	teplotaABox.addWidget(&indikNadrze);
 	
 
@@ -216,30 +213,30 @@ int main(int argc, char ** argv)
 	QLabel teplotaVBoxName("Vnejsi teplota: ",&w), teplotaVBoxEmpty(" ",&w); 
 	teplotaVBoxName.setFont(fNadpis);
 	teplotaVBox.addWidget(&teplotaVBoxEmpty);
-	//teplotaVBox.addWidget(&teplotaVBoxHodnota);
-	//teplotaVBox.addWidget(&teplotaVBoxJednotka);
 	QLCDNumber indikVnejTep(7,&w);
 	indikVnejTep.setSegmentStyle(QLCDNumber::Flat);
 	indikVnejTep.setMinimumHeight(100);
 	indikVnejTep.setFixedWidth(400);
 	teplotaVBox.addWidget(&indikVnejTep);
 
-	//graf
-	//potrebne promenne
-	long timSecund = 0;
-	double timAddSec = 2;
-	double tepZtrata_s = 0.005;
-	double tepMaxOhrev_s = (0.1)/255;
-	dtTep tepMiskyA;
-	dtTep tepMiskyAOld;
-	int oA2;
-	int timPredikce_s = 60;
-	int timDatZob_s = 60;
-	int pocetKtokuGrafu = timDatZob_s/timAddSec;
+	//graf vyvoje a predikce teploty v misce A
+	//potrebne promenne Eulerovy metody
+	int ohrevMiskyA;//promenna pro ulozeni intenzity ohrevu misky
+	long timSecund = 0;//Casova osa grafu
+	double timAddSec = 2;//cas jednoho kroku
+	double tepZtrata_s = 0.005;//velikost ubytku teploty 
+	double tepMaxOhrev_s = (0.1)/255;//velikost ohrevu misky pri maximalnimu ohrevu
+	dtTep tepMiskyA;//hodnota pro ulozeni teploty misky
+	dtTep tepMiskyAOld = minTep;//predchozi udaj o teplote misky
+	int timPredikce_s = 60;//Cas zobrazeni predikce v grafu
+	int timDatZob_s = 60;//cas zobrazeni poslednich dat za ...
+	int pocetKrokuGrafu = timDatZob_s/timAddSec;
+	//Data pro graf
 	QVector<double> zaznamTeploty;
 	QVector<double> zaznamTeplotyCas;
 	QVector<double> predikceVivojeTep;
 	QVector<double> predikceVivojeTepCas;
+	//inicializace grafu
 	QCustomPlot *plot = new QCustomPlot(&w);
 	plot->addGraph();
 	plot->addGraph();
@@ -247,8 +244,6 @@ int main(int argc, char ** argv)
 	plot->graph(0)->setName("Teplota");
 	plot->graph(1)->setPen(QPen(Qt::red));
 	plot->graph(1)->setName("Predikce");
-	
-	//plot->resize(10000, 8000);
 	plot->setMinimumSize(50,150);
 	plot->replot();
 
@@ -261,15 +256,9 @@ int main(int argc, char ** argv)
 	teplotaAGrafBox.addWidget(&teplotaAGrafBoxNadpis);
 	teplotaAGrafBox.addWidget(&teplotaAGrafBoxTeplota);
 	teplotaAGrafBox.addWidget(&teplotaAGrafBoxPredikce);
-	//teplotaAGrafBox2.addWidget(plot,10000);
-	
-
 
 
 	//Pridani vsech vrstev do QVBoxLayout
-
-
-	
 	vbox.addLayout(&potrSerialSetBox);
 	vbox.addLayout(&potrSerialSetBox2);
 	vbox.addLayout(&aktVseBox);
@@ -425,8 +414,8 @@ int main(int argc, char ** argv)
 	QObject::connect(&miskaABoxAnswer, QPushButton::clicked, [&](){
 		//teplotaABoxHodnota.setText(QString::number(protKom.answerDouble(modTepNadrz)));//Zobrazeni teploty
 		//indikNadrze.display(QString("%1 C").arg(protKom.answerDouble(modTepNadrz)));
-		oA2 = protKom.answerInt(modOhrevA);//informaci o Ohrevu
-		if (oA2 == 0 || oA2 == -1)
+		ohrevMiskyA = protKom.answerInt(modOhrevA);//informaci o Ohrevu
+		if (ohrevMiskyA == 0 || ohrevMiskyA == -1)
 		{
 			ohrevABoxStav.setText("Chlazeni");
 		}
@@ -465,8 +454,10 @@ int main(int argc, char ** argv)
 		//teplotaVBoxHodnota.setText(QString::number(protKom.answerDouble(modTepOkoli)));
 		double tepA = protKom.answerDouble(modTepOkoli);
 		indikVnejTep.display(QString("%1 C").arg(tepA));
+		//Pokud je teplota vyssi nez nastaveno, tak vypne ohrevA a zcervena SpinBox.
 		if (tepA >= miskaABoxMaxSpin.value())
 		{
+			ohrevABoxSlider.setValue(0);
 			ohrevABoxSlider.valueChanged(0),
 			miskaABoxMaxSpin.setStyleSheet("background-color: red;");
 		}
@@ -481,46 +472,47 @@ int main(int argc, char ** argv)
 		indikNadrze.display(QString("%1 C").arg(tepMiskyA));
 		
 		
-		//Vykresleni grafu...
-		
+		//Graf
+		//pridani novych udaju o teplote
 		zaznamTeploty.push_back(tepMiskyA);
-		
 		zaznamTeplotyCas.push_back(timSecund);
 		
-		if (zaznamTeplotyCas.size()>pocetKtokuGrafu)
+		if (zaznamTeplotyCas.size()>pocetKrokuGrafu)//Vymaze nadbytecna data o teplote
 		{
 			zaznamTeplotyCas.remove(0);
 			zaznamTeploty.remove(0);
 		}
-		
+		//Vykresleni grafu
 		plot->graph(0)->setData(zaznamTeplotyCas, zaznamTeploty);
 		plot->rescaleAxes();
 		plot->replot();
 
+		//Vymazani predikce
 		predikceVivojeTep.clear();
 		predikceVivojeTepCas.clear();
-		double pomer = (tepMiskyA - tepMiskyAOld)/timAddSec;
-		dtTep predN =  tepMiskyA;
+
+		double vektTep = (tepMiskyA - tepMiskyAOld)/timAddSec;//pocatecny vektor teplty
+		dtTep predN =  tepMiskyA;//pocatecni predikovana hodnota
+		//pridani pocatecnich hodnot predikce do grafu
 		predikceVivojeTepCas.push_back(timSecund );
 		predikceVivojeTep.push_back(predN);
-
+		//Vypocet
 		for (int i = timAddSec ; i < timPredikce_s; i+= timAddSec)
 		{
-			double aA = oA2;
+			//Eulerova metoda
+			double aA = ohrevMiskyA;
 			predikceVivojeTepCas.push_back(timSecund +  i);
-			pomer += timAddSec*(tepMaxOhrev_s*aA - tepZtrata_s);
-			//pomer += 2*(0.001*aA - 0.01);
-			predN += pomer*timAddSec;
+			vektTep += timAddSec*(tepMaxOhrev_s*aA - tepZtrata_s);
+			predN += vektTep*timAddSec;
 			predikceVivojeTep.push_back(predN);
 		}
-			plot->graph(1)->setData(predikceVivojeTepCas, predikceVivojeTep);
+		//vykresleni predikce
+		plot->graph(1)->setData(predikceVivojeTepCas, predikceVivojeTep);
 		plot->rescaleAxes();
-		
-		tepMiskyAOld = tepMiskyA;
-
-
 		plot->replot();
+		//Nastaveni promennych do dalsiho kroku.
 		timSecund += timAddSec;
+		tepMiskyAOld = tepMiskyA;
 
 	});
 
