@@ -1,62 +1,62 @@
 # Schema
-V pdf je schematicky znázornene zapojeni.
-* Schema zapojeni - Celkove propojeni
-* Deska - Jde o plošný spoj vlastní výroby, kde je zminěná schéma.
-* Podloska - Jde o konstrukci vlastní výroby, kde je umistěne podsvíceni misek a konektory pro topne tělesa... 
+V pdf je schématicky znázorněné zapojeni.
+* Schema zapojeni - Celkové propojeni
+* Deska - Jde o plošný spoj vlastní výroby, kde je zmíněná schéma.
+* Podlozka - Jde o konstrukci vlastní výroby, kde je umistěne podsvíceni misek a konektory pro topné tělesa... 
 ## Popis zapojeni soustavy
 ###Komponenty:
-* Arduino Nano - Ridi celou elektrniku
+* Arduino Nano - Řidi celou elektroniku. Má funkci mikrokontroléru.
 * USB kabel, ktery spojuje Arduino s PC
-* Zdroj napeti 5V
-* Zdroj napeti 12V 2A
-* H-mustek pro 12V, ktery ovlada MotorX
-* H-mustek pro 5V, ktery ovlada MotorZ
-* MotorX dc 12V motor, s proudovou spickou kolem 1,5A
+* Zdroj napěti 5V
+* Zdroj napěti 12V 2A
+* H-můstek pro 12V, ktery ovládá MotorX
+* H-můstek pro 5V, ktery ovládá MotorZ
+* MotorX dc 12V motor, s proudovou špickou kolem 1,5A
 * MotorZ je "CD-ROM Stepper motor"
-* Senzor teploty MLX90614. Jde o infracervenu snimac. Meri jak teplotu okoli, tak i objektu ne ktery je nemiren.
-* Deska vlastni vyroby. Spina kontakty na podlosce pro podsviceni a topeni.
-* Podloska. Vlastni vyroby.
+* Senzor teploty MLX90614. Jde o infračervený snimač. Měří jak teplotu okoli, tak i objektu na který je namířený.
+* Deska vlástni vyroby. Spíná kontakty na podložce pro podsviceni a topeni.
+* Podložka. Vlastni výroby.
 
 ###GND spojeno s:
-* GND Arduino a nasledne:
-    * USB kabel a zdroj pocitace...
+* GND Arduino a následně:
+    * USB kabel a zdroj počítače...
     * GND Senzor teplomeru
-* Zabudovany zdroj 12V
-* Zabudovany zdroj 5V
-* GND H-mustek pro 12V MotorX
-* GND H-mustek pro 5V MotorZ
-* GND deska vlastni vyroby.
+* Zabudovaný zdroj 12V
+* Zabudovaný zdroj 5V
+* GND H-můstek pro 12V MotorX
+* GND H-můstek pro 5V MotorZ
+* GND deska vlastní výroby.
 
-###Napajeni:
+###Napájení:
 ####12V:
-* Vcc H-mustek pro 12V MotorX
-* (+) Deska vlastni vyroby
+* Vcc H-můstek pro 12V MotorX
+* (+) Deska vlastní výroby
 ####5V:
-* Vcc H-mustek pro 5V MotorZ
+* Vcc H-můstek pro 5V MotorZ
 ####USB 5V:
 * Arduino 5V
-* Vcc teplomer
+* Vcc teploměr
 
-## Zapojeni Arduino Nano
-Vytobyl jsem pomoci baru prazdných pinu konektory. Pojmenoval jsme je "Sloty". 
+## Zapojení Arduino Nano
+Vyrobil jsem pomoci BSL vlasní konektory. Pojmenoval jsem je "Sloty". 
 * Slot1 - 4 pin. od GND do D4
-    * GND - zem zdroju
+    * GND - země zdrojů
     * D3 pwm - Pwm kontroler motoru X
     * D4 - Kontroler motoru X
 * Slot2 - 8 pinu od D5 do D12
-    * D5 - Ohřev A
-    * D6 - Ohřev B
-    * D9 - Světlo A
-    * D10 - Světlo B
-    * D11 - Světlo C
+    * D5 pwm - Ohřev A
+    * D6 pwm - Ohřev B
+    * D9 pwm - Světlo A
+    * D10 pwm - Světlo B
+    * D11 pwn - Světlo C
 * Slot3 - 4 pinu do A0 do A3
-    * A3 - Kontrolér 1 pro motor Z
-    * A2 - Kontrolér 2 pro motor Z
-    * A1 - Kontrolér 3 pro motor Z
-    * A0 - Kontrolér 4 pro motor Z
+    * A3 - konektor A- pro motor Z
+    * A2 - konektor A+ pro motor Z
+    * A1 - konektor B- pro motor Z
+    * A0 - konektor A+ pro motor Z
 * Slot4 - 8 pinu od A4 od VIN
     * GND - zep pro senzor MLX.
-    * 5V - napajeni pro senzor MLX.
+    * 5V - napájeni pro senzor MLX.
     * A5 - SCL pro senzor MLX.
     * A4 - SDA pro senzor MLX.
 
