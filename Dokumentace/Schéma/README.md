@@ -1,4 +1,4 @@
-# Schema
+# Schéma
 V pdf je schematicky znázornene zapojeni.
 * Schema zapojeni - Celkove propojeni
 * Deska - Jde o plošný spoj vlastní výroby, kde je zminěná schéma.
