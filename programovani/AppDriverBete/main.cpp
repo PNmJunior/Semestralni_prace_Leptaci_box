@@ -211,7 +211,7 @@ int main(int argc, char ** argv)
 
 
 	//Indikator Vnejsi teploty
-	QLabel vnijsiTeplotaBoxName("Vnejsi teplota: ",&w), vnijsiTeplotaBoxEmpty(" ",&w); 
+	QLabel vnijsiTeplotaBoxName("Teplota uvnitr boxu: ",&w), vnijsiTeplotaBoxEmpty(" ",&w); 
 	vnijsiTeplotaBoxName.setFont(fNadpis);
 	vnijsiTeplotaBox.addWidget(&vnijsiTeplotaBoxEmpty);
 	QLCDNumber vnijsiTeplotaBoxIndikator(7,&w);
