@@ -15,7 +15,6 @@
 #include <QFont>
 #include <QTimer>
 #include <QGridLayout>
-#include <QLine>
 #include <QFrame>
 #include <QLCDNumber>
 #include <QThread> 
