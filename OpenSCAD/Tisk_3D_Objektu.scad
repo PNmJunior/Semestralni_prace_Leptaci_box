@@ -2,6 +2,22 @@
 Tento soubor je popisem komponent pomoci jazyka použivaného programem OpenSCAD. https://openscad.org/
 */
 
+//3D tisk rozvržení komponentů:
+
+//TiskNutneMinimum();
+//TiskVsechnyKomponenty();
+
+
+//Komponenty:
+
+//SenSroub();
+//SenHoriz();
+//KulUchytSt();
+//HranUchytSt();
+//Nosnik();
+//Spojka();
+
+
 //TiskNutneMinimum();
 module TiskNutneMinimum()//Rozložení komponent pro tisk na malé ploše 100x120mm. Jsou zde nejnutnější komponenty.
 {
@@ -60,7 +76,7 @@ module TiskVsechnyKomponenty()//Rozložení komponent pro tisk na větší ploš
     }
 }
 
-SenSroub();
+//SenSroub();
 module SenSroub()//Jde o krabičku, kde bude umístěn malý plošný spoj, na kterém bude infračervený senzor teploty. Krabička bude umístěná nad podložkou pomoci stavebnice Merkur.
 {
     xO = 40;
