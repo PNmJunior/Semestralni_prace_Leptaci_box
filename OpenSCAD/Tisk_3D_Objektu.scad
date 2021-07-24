@@ -1,10 +1,9 @@
 /*
-Tento soubor je popisem komponent pomoci jazyka použivané programem OpenSCAD. https://openscad.org/
-
+Tento soubor je popisem komponent pomoci jazyka použivaného programem OpenSCAD. https://openscad.org/
 */
 
-TiskNutneMinimum();
-module TiskNutneMinimum()//Rozložení komponent pro tisk na malé ploše. Jsou zde nutné komponenty.
+//TiskNutneMinimum();
+module TiskNutneMinimum()//Rozložení komponent pro tisk na malé ploše 100x120mm. Jsou zde nejnutnější komponenty.
 {
     translate([0,0,0])SenSroub();
     translate([0,57,0])SenHoriz();
@@ -27,7 +26,7 @@ module TiskNutneMinimum()//Rozložení komponent pro tisk na malé ploše. Jsou 
 
 
 //TiskVsechnyKomponenty();
-module TiskVsechnyKomponenty()//Rozložení komponent pro tisk na větší ploše. Jsou zde všechny potřebné komponenty pro tvorbu variací komfigurace držáku plošného spoje.
+module TiskVsechnyKomponenty()//Rozložení komponent pro tisk na větší ploše 150x130mm. Jsou zde komponenty pro tvorbu variací konfigurace držáku plošného spoje.
 {
     translate([0,0,0])SenSroub();
     translate([0,60,0])SenHoriz();
@@ -61,8 +60,8 @@ module TiskVsechnyKomponenty()//Rozložení komponent pro tisk na větší ploš
     }
 }
 
-//SenSroub();
-module SenSroub()//Jde o krabočku, kde bude umístěn malý plošný spoj, na kterém bude infračervený senzor teploty. Kraička je v plánu umýstit a upevnit na "vaničku" a to pomoci stavebnice Merkur.
+SenSroub();
+module SenSroub()//Jde o krabičku, kde bude umístěn malý plošný spoj, na kterém bude infračervený senzor teploty. Krabička bude umístěná nad podložkou pomoci stavebnice Merkur.
 {
     xO = 40;
     yO  =20;
@@ -123,9 +122,9 @@ rezerva = 0.5;
 }
 
 
-vyskaSen = 2+4+1;//globalni proměná pro výšku infračerveného senzoru
+vyskaSen = 2+4+1;//globálni proměnná pro výšku infračerveného senzoru
 //SenHoriz();
-module SenHoriz()//Jde o krabočku, kde bude umístěn malý plošný spoj, na kterém bude infračervený senzor teploty. Kraička je v plánu upevnit na tyčku vychazejicí z "Nosníku"(Popis níže).
+module SenHoriz()//Jde o krabičku, kde bude umístěn malý plošný spoj, na kterém bude infračervený senzor teploty. Krabička bude upevněná na tyčku vycházející z "Nosníku"(Popis níže).
 {
     xO = 20;
     yO  =30;
@@ -171,14 +170,14 @@ module Senzor()
 }
 
 
-//met= zkratka pro mertix sistem
-metVysNosnik= 30;//globalni proměná, který určuje výšku nosníku.
-//globalní proměná, která určuje výšku nástavců přidžujících plošný spoj.
-metVysDrz = metVysNosnik+55+0-5; //vyskaNoisniku + vyska plošiny vdolni poleze + rezerva - 
+//met= zkratka pro mertix system
+metVysNosnik= 30;//globalni proměnná, která určuje výšku nosníku.
+//globalní proměnná, která určuje výšku nástavců přidržujících plošný spoj.
+metVysDrz = metVysNosnik+55+0-5; //vyskaNosniku + výška plošiny v dolní poloze + rezerva - rozdíl mezi x a y tyčkou 
 
 
 //KulUchytSt();
-module KulUchytSt()//Kulatý nastavec na držení spoje.
+module KulUchytSt()//Kulatý nástavec na držení spoje.
 {
 KulUchyt(metVysDrz, 30,1.5,2,9,9);
 }
@@ -199,7 +198,7 @@ module KulUchyt(vyska,vyskaValce , hloubkaVyrez, pocetHranVyrezy,sirkaValce, sir
 
 //HranUchytSt();
 //HranUchyt(metVysDrz);
-module HranUchytSt()//Hranatý nastavec na držení spoje.
+module HranUchytSt()//Hranatý nástavec na držení spoje.
 {
     HranUchyt(metVysDrz);
 }
@@ -222,7 +221,7 @@ module HranUchyt(vyska, sirka = 9)
 
 //Nosnik(3);
 //Nosnik();
-module Nosnik(vyskaRov = 4)// převod mezi jezdcem, který soustavu pohaní na ose z a následné konstrukce. Je nutné aby byl pevný a odolný a proto to tisknu vicekrát ze dvou pozic a dvou rozdměrů desky.
+module Nosnik(vyskaRov = 4)// Převod mezi pohyblivou částí CD rom a tyčkami, pomoci kterých jde nastavit šířka plošného spoje. Je nutné, aby byl Nosník pevný a odolný, a proto to tisknu vicekrát ze dvou pozic a dvou rozdměrů desky.
 {
     deska = 9;
     odDesky = 5;
@@ -246,7 +245,7 @@ module Nosnik(vyskaRov = 4)// převod mezi jezdcem, který soustavu pohaní na o
 }
 
 
-module DiryNaDrzak()//přesne naměřeno
+module DiryNaDrzak()//přesně naměřeno
 {
     sirkaObruby = 3.75;
     vyskaObruby = 4;
@@ -268,13 +267,13 @@ module DiryNaDrzak()//přesne naměřeno
 
 
 //Spojka();
-module Spojka()//Jde o převodnýk mezi "Nosníkem" a "Nástavci".
+module Spojka()//Jde o převodník mezi "Nosníkem" a "Nástavci".
 {
     Nastavec(5*5+5,5);
 }
 
 
-//Univerzalni nastavec
+//Univerzálni nástavec
 module Nastavec(vyska,pocetDer,sirka = 9)
 {
     //OvalnaKrichleCisla([10,10,vyska],1,1,1);
@@ -300,7 +299,7 @@ module Nastavec(vyska,pocetDer,sirka = 9)
 }
 
 
-//Kód pro vytvoření ovalných kvádrů
+//Kód pro vytvoření oválných kvádrů
 module OvalnaKrichleX(Rozdmery, zakulaceni)
 {
 	union() {
@@ -392,7 +391,6 @@ module OvalnaKrichleCisla(Rozdmery, osaX, osaY, osaZ)
 		{
 			cube(Rozdmery,center=false);
 		}
-		
 	}
 }
 
