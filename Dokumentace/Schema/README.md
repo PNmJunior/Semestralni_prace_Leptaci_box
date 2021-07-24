@@ -6,8 +6,12 @@ V pdf je schématicky znázorněné zapojeni.
 <img src = "Deska.png">
 * Podlozka - Jde o konstrukci vlastní výroby, kde je umistěné podsvíceni misek a konektory pro topné tělesa... 
 <img src = "Podlozka.png">
+
+
 ## Popis zapojeni soustavy
+
 ###Komponenty:
+
 * Arduino Nano - Řidi celou elektroniku. Má funkci mikrokontrolóru.
 * USB kabel, ktery spojuje Arduino s PC
 * Zdroj napěti 5V
