@@ -10,7 +10,7 @@ V pdf je schématicky znázorněné zapojeni.
 
 ## Popis zapojeni soustavy
 
-###Komponenty:
+### Komponenty:
 
 * Arduino Nano - Řidi celou elektroniku. Má funkci mikrokontrolóru.
 * USB kabel, ktery spojuje Arduino s PC
@@ -34,13 +34,13 @@ V pdf je schématicky znázorněné zapojeni.
 * GND H-můstek pro 5V MotorZ
 * GND deska vlastní výroby.
 
-###Napájení:
-####12V:
+### Napájení:
+#### 12V:
 * Vcc H-můstek pro 12V MotorX
 * (+) Deska vlastní výroby
-####5V:
+#### 5V:
 * Vcc H-můstek pro 5V MotorZ
-####USB 5V:
+#### USB 5V:
 * Arduino 5V
 * Vcc teploměr
 
