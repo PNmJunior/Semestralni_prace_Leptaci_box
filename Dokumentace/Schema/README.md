@@ -1,26 +1,26 @@
 # Schema
 V pdf je schématicky znázorněné zapojeni.
 * Schema zapojeni - Celkové propojeni
-* Deska - Jde o plošný spoj vlastní výroby, kde je zmíněná schéma.
-* Podlozka - Jde o konstrukci vlastní výroby, kde je umistěne podsvíceni misek a konektory pro topné tělesa... 
+* Deska - Jde o plošný spoj vlastní výroby. Ovládá Desku.
+* Podlozka - Jde o konstrukci vlastní výroby, kde je umistěné podsvíceni misek a konektory pro topné tělesa... 
 ## Popis zapojeni soustavy
 ###Komponenty:
-* Arduino Nano - Řidi celou elektroniku. Má funkci mikrokontroléru.
+* Arduino Nano - Řidi celou elektroniku. Má funkci mikrokontrolóru.
 * USB kabel, ktery spojuje Arduino s PC
 * Zdroj napěti 5V
 * Zdroj napěti 12V 2A
-* H-můstek pro 12V, ktery ovládá MotorX
-* H-můstek pro 5V, ktery ovládá MotorZ
-* MotorX dc 12V motor, s proudovou špickou kolem 1,5A
+* H-můstek pro 12V, který ovládá MotorX
+* H-můstek pro 5V, který ovládá MotorZ
+* MotorX dc 12V motor, s proudovou špičkou kolem 1,5A
 * MotorZ je "CD-ROM Stepper motor"
-* Senzor teploty MLX90614. Jde o infračervený snimač. Měří jak teplotu okoli, tak i objektu na který je namířený.
-* Deska vlástni vyroby. Spíná kontakty na podložce pro podsviceni a topeni.
+* Senzor teploty MLX90614. Jde o infračervený snimač. Měří jak teplotu okoli, tak i objektu, na který je namířený.
+* Deska vlástni výroby. Spíná kontakty na podložce pro podsviceni a topeni.
 * Podložka. Vlastni výroby.
 
 ###GND spojeno s:
 * GND Arduino a následně:
     * USB kabel a zdroj počítače...
-    * GND Senzor teplomeru
+    * GND Senzor teploměru
 * Zabudovaný zdroj 12V
 * Zabudovaný zdroj 5V
 * GND H-můstek pro 12V MotorX

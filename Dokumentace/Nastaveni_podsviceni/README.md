@@ -1,6 +1,6 @@
 #Nastaveni podsvícení
 PWM piny Arduina jsou schpny generovat pwm pulz v rozsahu od 0[0%] do 255[100%] intenzity svícení.
-Ovšem realná intenzita svícení není lineárně uměrná vůči pwm pulzům.
+Ovšem realná intenzita svícení není lineárně úměrná vůči pwm pulzům.
 <img src = "GrafZavislostiSvetleNaVstup.png">
 
 x = vstup v rozsahu od 0 do 100 v jednotce %
@@ -17,7 +17,7 @@ y = procenta
 | rozsah x | vzorec | rozsah y| popis|
 |---|---|---|---|
 |0|y = 0|0|vypnuté světlo|
-|1|y = 10|10|minimální svícení odhadnute na 10%|
+|1|y = 10|10|minimální svícení odhadnuté na 10%|
 |2,254|<img src = "vzB.png">|20,99|regulace svicení|
 |255|y = 100|100|maximálni svicení|
 
