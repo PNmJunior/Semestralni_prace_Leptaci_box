@@ -1,8 +1,11 @@
 # Schema
 V pdf je schématicky znázorněné zapojeni.
 * Schema zapojeni - Celkové propojeni
+<img src = "Schema zapojeni.png">
 * Deska - Jde o plošný spoj vlastní výroby. Ovládá Desku.
+<img src = "Deska.png">
 * Podlozka - Jde o konstrukci vlastní výroby, kde je umistěné podsvíceni misek a konektory pro topné tělesa... 
+<img src = "Podlozka.png">
 ## Popis zapojeni soustavy
 ###Komponenty:
 * Arduino Nano - Řidi celou elektroniku. Má funkci mikrokontrolóru.
