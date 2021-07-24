@@ -1,7 +1,9 @@
 # AppDriverBete
 
 Aplikace je naprogramovaná v QT5 kvůli podpoře QSerialPort.h
-##Projekt obsahuje:
+
+## Projekt obsahuje:
+
 * "AppDriverBete.pro" - Vytváření aplikace v release.
 * "main.cpp" - Naprogramovaná aplikace.
 * "definice.h" - Soubor s definicemi stejný jak pro Arduino, tak pro Aplikaci. Nutné kvůli kompaktibilitě komunikačního protokolu.

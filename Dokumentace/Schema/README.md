@@ -1,5 +1,7 @@
 # Schema
+
 V pdf je schématicky znázorněné zapojeni.
+
 * Schema zapojeni - Celkové propojeni
 
 <img src = "Schema_zapojeni.png">
@@ -71,5 +73,3 @@ Vyrobil jsem pomoci BSL vlasní konektory. Pojmenoval jsem je "Sloty".
     * 5V - napájeni pro senzor MLX.
     * A5 - SCL pro senzor MLX.
     * A4 - SDA pro senzor MLX.
-
-
