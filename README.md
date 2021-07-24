@@ -1,5 +1,5 @@
-# Seminarni_prace_Leptaci_box
-Jedná se o Seminární prácí Pavla Ňachaje z předmětu PPC.
+# Semestrální práce Leptací box
+Jedná se o semestrální prácí Pavla Ňachaje z předmětu PPC.
 ## Cíl
 Sestrojit zařízení, které usnadní a zefektivní leptání oboustraných spojů.
 ## Výsledek
