@@ -11,7 +11,7 @@ y = pwm výstup v rozsahu od 0 do 255
 |1,19|y = 1|1|minimální světlo|
 |20,99|<img src = "vzA.png">|2,241|regulace svícení|
 |100|y = 255|255|maximalni svicení|
-
+---
 Převod zpět z pwm do procent, pomoci inverzní funkce:
 x = pwm výstup
 y = procenta
