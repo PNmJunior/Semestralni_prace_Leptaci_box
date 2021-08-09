@@ -20,10 +20,14 @@
 #include <QThread> 
 #include <QDoubleSpinBox>
 
+#define Bluetooth
+#define SerialPort
+
 //inicializace souboru...
 #include "definice.h"//Spolecny soubor pro Arduino
 #include "protokolKomunikace.h"//komunikacni protokol
 #include "qcustomplot.h"//graf
+#include "transportDat.h"
 
 
 //main
