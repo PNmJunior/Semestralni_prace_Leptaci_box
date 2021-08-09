@@ -1,6 +1,8 @@
 #include <QApplication>
 #include <QDebug>
 #include <QLabel>
+#include <QSerialPort>
+#include <QSerialPortInfo>
 #include "main.cpp"
 /*
 #ifdef(Bluetooth)
@@ -22,7 +24,8 @@ QSerialPort *serialPort;//ukazatel na seriovy port
 
 public:
 
-transportDat(*QSerialPort SerPort);
+transportDat(QSerialPort *SerPort);
+~transportDat();
     bool isOpen();
     qint64 write(const QByteArray &data);
     bool flush();
@@ -31,13 +34,13 @@ transportDat(*QSerialPort SerPort);
     qint64 available();
     QByteArray read(qint64 delka);
     bool begin();
-    ~transportDat();
+    
     
 };
 
-transportDat::transportDat(*QSerialPort SerPort)
+transportDat::transportDat(QSerialPort *SerPort);
 {
-    serialPort = SerialP;
+    serialPort = SerPort;
 }
 
 transportDat::~transportDat()

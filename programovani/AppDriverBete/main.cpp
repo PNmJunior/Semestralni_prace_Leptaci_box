@@ -20,14 +20,14 @@
 #include <QThread> 
 #include <QDoubleSpinBox>
 
-#define Bluetooth
-#define SerialPort
+//#define Bluetooth
+//#define SerialPort
 
 //inicializace souboru...
 #include "definice.h"//Spolecny soubor pro Arduino
 #include "protokolKomunikace.h"//komunikacni protokol
 #include "qcustomplot.h"//graf
-#include "transportDat.h"
+//#include "transportDat.h"
 
 
 //main
@@ -74,7 +74,7 @@ int main(int argc, char ** argv)
 
 
 	//Nastaveni portu
-	QLabel potrSerialSetBoxText("Vyber portu:",&w),potrSerialSetBoxTextStatus("Stav: ",&w),potrSerialSetBoxStatus("Nebyl vybran zadny port.",&w);
+	QLabel potrSerialSetBoxText("Vyber Bluetooth:",&w),potrSerialSetBoxTextStatus("Stav: ",&w),potrSerialSetBoxStatus("Nebyl vybran zadny port.",&w);
 	potrSerialSetBoxText.setFont(fNadpis);
 	QPushButton potrSerialSetBoxButAkt("Aktualizovat seznam");
 	QComboBox potrSerialSetBoxCombSeznamPortu(&w);
