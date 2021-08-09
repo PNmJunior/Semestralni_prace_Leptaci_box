@@ -24,11 +24,15 @@
 #include "definice.h"//Spolecny soubor pro Arduino
 #include "protokolKomunikace.h"//komunikacni protokol
 #include "qcustomplot.h"//graf
+//#include "prepravaDat.h"
+
 
 
 //main
 int main(int argc, char ** argv)
 {
+
+	
 	QApplication a(argc, argv);
 	QTimer timerAkt1 ;//pravidelna aktualizace dat
 	QList<QSerialPortInfo> seznamPort = QSerialPortInfo::availablePorts();//seznam vsech portu v PC
