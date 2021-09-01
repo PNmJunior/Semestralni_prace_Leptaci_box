@@ -11,11 +11,11 @@
 class protokolKomunikace
 {
 private:
-    QSerialPort *serialPort;//ukazatel na seriovy port
+    transportDat *serialPort;//ukazatel na seriovy port   transportDat
     QLabel *textLabel;//ukazatel na QLabel, kde bude informovat o stavu otevreni portu. Informovani o chybe...
     
 public:
-    protokolKomunikace(QSerialPort *SerialP, QLabel *textL);//Inicializace
+    protokolKomunikace(transportDat *SerialP, QLabel *textL);//Inicializace
     ~protokolKomunikace();
     QString notOpen();//Text s informaci, ktery port nejde otevrit
     void notOpenInformation();//Vypise text o neotevreni portu na QLabel
@@ -36,7 +36,7 @@ public:
 };
 
 
-protokolKomunikace::protokolKomunikace(QSerialPort *SerialP, QLabel *textL)
+protokolKomunikace::protokolKomunikace(transportDat *SerialP, QLabel *textL)
 {
     serialPort = SerialP;
     textLabel = textL;
@@ -74,6 +74,7 @@ void protokolKomunikace::send(QByteArray sendText)
 
 QString protokolKomunikace::notOpen()
 {
+    
     return QString("Nelze komunikovat se serialovym portem: ") + serialPort->portName();
 }
 
@@ -162,8 +163,7 @@ QByteArray protokolKomunikace::quest(char mod_allKom)
         }
         QString alfa = QString("%1%2\n").arg((char)mod_allKom).arg(Dotaz);//Formulace dotazu
         send(alfa.toUtf8());//Poslani dotazu
-        serialPort->waitForBytesWritten();//cekani
-        serialPort->waitForReadyRead();//cekani
+        serialPort->timeOut();
         for (int i = 0; i <20 && serialPort->bytesAvailable()<6; i++)
         {
             textLabel->setText("cekam");

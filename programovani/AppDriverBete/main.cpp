@@ -27,17 +27,19 @@
 #include "definice.h"//Spolecny soubor pro Arduino
 #include "protokolKomunikace.h"//komunikacni protokol
 #include "qcustomplot.h"//graf
-//#include "transportDat.h"
+#include "transportDat.h"
 
 
 //main
 int main(int argc, char ** argv)
 {
+	
 	QApplication a(argc, argv);
 	QTimer timerAkt1 ;//pravidelna aktualizace dat
 	QList<QSerialPortInfo> seznamPort = QSerialPortInfo::availablePorts();//seznam vsech portu v PC
 	QSerialPortInfo vybranyPort;//Port na kterem je Leptaci box
-	QSerialPort serialovyPort;//inicializace vybraneho portu
+	QSerialPort serPort;
+	transportDat serialovyPort = transportDat(serPort,vybranyPort);//inicializace vybraneho portu
 	QWidget w;
 	QVBoxLayout vbox;
 	//Oblasti grafiky
@@ -72,6 +74,7 @@ int main(int argc, char ** argv)
 	oddelMiskaB.setFrameStyle( QFrame::HLine | QFrame::Plain);
 
 
+for
 
 	//Nastaveni portu
 	QLabel potrSerialSetBoxText("Vyber Bluetooth:",&w),potrSerialSetBoxTextStatus("Stav: ",&w),potrSerialSetBoxStatus("Nebyl vybran zadny port.",&w);
@@ -313,24 +316,7 @@ int main(int argc, char ** argv)
 		{
 			try
 			{
-				vybranyPort = infos.at( potrSerialSetBoxCombSeznamPortu.currentIndex());//Vyber Portu
-				serialovyPort.setPort(vybranyPort);//Nastavit port podle portInfo
-				serialovyPort.open(QIODevice::ReadWrite);//druh komunikace
-				serialovyPort.setBaudRate(QSerialPort::Baud9600);//rychlost
-				//Dalsi parametry potrebne pro spravne fungovani serioveho portu
-				serialovyPort.setDataBits(QSerialPort::Data8);
-				serialovyPort.setParity(QSerialPort::NoParity);
-				serialovyPort.setStopBits(QSerialPort::OneStop);
-				serialovyPort.setFlowControl(QSerialPort::NoFlowControl);
-				while (!serialovyPort.isOpen())//Otevreni portu
-				{
-					serialovyPort.open(QIODevice::ReadWrite);
-				}
-				if(!(serialovyPort.isWritable()&&serialovyPort.isOpen()))//Kontrola otevreni portu
-				{
-					protKom.notOpenInformation();
-				}
-				else//Uspesne nastavena komunikace
+				if(serialovyPort.begin(*serialovyPort.serialPortInfo))
 				{
 					QString beta = QString("Komunikace s portem: ")+serialovyPort.portName();//Informace o navazani spojeni
 					potrSerialSetBoxStatus.setText(beta);
@@ -346,6 +332,10 @@ int main(int argc, char ** argv)
 						serialovyPort.close();
 					}
 					potrSerialSetBoxStatus.setText(beta);
+				}
+				else
+				{
+					protKom.notOpenInformation();
 				}
 			}
 			catch(...)
