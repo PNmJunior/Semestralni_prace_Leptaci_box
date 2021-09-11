@@ -282,6 +282,7 @@ void MotorZrun()//Tento kod je spousten v loop(). Pokud jsou splneny podminky, v
 {
   if(motorZ == vibMotorZOn && motorZtime < millis())
   {
+    
     MotorZindex(motorZkrok);
     motorZtime = millis() + 10;
     if(motorZkrok == 3)
