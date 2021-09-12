@@ -249,6 +249,8 @@ void MotorZ()
        motorZkrok = 4;
        motorZ = stopMotorZ;
        MotorZindex(4);
+    digitalWrite(pinMotorXdig, 0);
+    digitalWrite(pinMotorXpwm, 0);
     }
     else if(novi == nahorumotorZ)
     {
@@ -271,7 +273,7 @@ void MotorZ()
        motorZkrok = 0;
        motorZ = vibMotorZOn;
        motorZtime = millis();
-       motorZscit = 1;
+       //motorZscit = 1;
     }
     MotorZindex(4);
   }
@@ -283,6 +285,7 @@ void MotorZrun()//Tento kod je spousten v loop(). Pokud jsou splneny podminky, v
   if(motorZ == vibMotorZOn && motorZtime < millis())
   {
     
+    /*
     MotorZindex(motorZkrok);
     motorZtime = millis() + 10;
     if(motorZkrok == 3)
@@ -294,6 +297,27 @@ void MotorZrun()//Tento kod je spousten v loop(). Pokud jsou splneny podminky, v
       motorZscit = 1;
     }
     motorZkrok += motorZscit;
+    */
+     motorZtime = millis() + 60;
+    switch (motorZkrok)
+    {
+    case 0:
+          digitalWrite(pinMotorXdig, 1);
+    digitalWrite(pinMotorXpwm, 0);  
+      break;
+      case 1:
+      case 3:
+          digitalWrite(pinMotorXdig, 0);
+    digitalWrite(pinMotorXpwm, 0);
+    break;
+    case 2:
+        digitalWrite(pinMotorXdig, 0);
+    digitalWrite(pinMotorXpwm, 1);
+    break;
+    
+    default:
+      break;
+    }
   }
 }
 
