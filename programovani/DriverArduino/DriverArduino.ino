@@ -54,8 +54,11 @@ long long motorZtime;//cas dalsiho kroku
 void setup() 
 {
   Serial.begin(9600);// inicializace UART
+  
   Serial.flush();
-  mlx.begin(); // inicializace teploměru MLX z knihovny
+    //Serial.print("lempprob1");
+  //mlx.begin(); // inicializace teploměru MLX z knihovny
+    //Serial.print("lempprob2");
 
   //Nastaveni pinu
   pinMode(pinOhrevA, OUTPUT);
@@ -69,6 +72,7 @@ void setup()
   pinMode(pinMotorZ2 , OUTPUT);
   pinMode(pinMotorZ3 , OUTPUT);
   pinMode(pinMotorZ4 , OUTPUT);
+  //Serial.print("lempprob3");
 
   //Inicializace promennych
   //Ohrev: Aktivni vyuziti, rozsah 0-255
@@ -125,10 +129,10 @@ void loop() {
       MotorZ()  ;
       break; 
       case modTepNadrz:
-      TepNadrzB();
+      //TepNadrzB();
       break;
       case modTepOkoli:
-      TepOkoliB();
+      //TepOkoliB();
       break;
       case modIdentifikace:
       Identifikace();
@@ -197,8 +201,8 @@ void MotorXB()
     }
     else if(novi == pravBMotorX)
     {
-      digitalWrite(pinMotorXdig, 1);
-      digitalWrite(pinMotorXpwm, 0);
+      digitalWrite(pinMotorXdig, 0);
+      digitalWrite(pinMotorXpwm, 1);
       delay(200);
     }
     //vypnuti motoru
@@ -298,7 +302,7 @@ void MotorZrun()//Tento kod je spousten v loop(). Pokud jsou splneny podminky, v
     }
     motorZkrok += motorZscit;
     */
-     motorZtime = millis() + 60;
+     motorZtime = millis() + 10;
     switch (motorZkrok)
     {
     case 0:
@@ -318,6 +322,7 @@ void MotorZrun()//Tento kod je spousten v loop(). Pokud jsou splneny podminky, v
     default:
       break;
     }
+    motorZkrok = (motorZkrok +1)%4;
   }
 }
 
