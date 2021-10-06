@@ -93,29 +93,49 @@ module NosnikV2(vyskaRov = 4, delkaRov = 100)// Převod mezi pohyblivou částí
 {
     deska = 9;
     odDesky = 5;
-    velNast = 9;
+    velNast = 8;
     sirka = 27;
     delkaNavic = 1;
-    vyskaNast = 21;
-    diryRozdm = 3;
+    vyskaNast = 24;
+    diryRozdm = 3.1;
     diryStart = (velNast+delkaNavic+(3/2)+3);
-    diryKrok = diryRozdm*2;
-    diryStop = (delkaRov - (3/2)-4);
+    diryKrok = 3*2;//diryRozdm*2;
+    diryStop = (delkaRov - (3/2)-10);
     
     translate([0,0,0]) difference()
     {
     translate([0,0,0])
         {
-    translate([(sirka-velNast)/2,0,vyskaRov]) rotate([-24,0,0]) OvalnaKrichleCisla([velNast,10,vyskaNast-2.2],1,0.5,0.5);
+    translate([(sirka-velNast)/2,0,vyskaRov]) rotate([-20,0,0]) OvalnaKrichleCisla([velNast,10,vyskaNast-2.8],1,0.5,0.5);
             
     translate([(sirka-velNast)/2,7,0]) OvalnaKrichleCisla([velNast,delkaRov-7,vyskaNast],1,0.5,0.5);
+            
+            
         }
         for(i=[diryStart:diryKrok:diryStop])
         {
             translate([0,i,3]) rotate([0,90,0]) cylinder(sirka, d = diryRozdm, true,$fn=20);
             translate([0,i,13]) rotate([0,90,0]) cylinder(sirka, d = diryRozdm, true,$fn=20);
-            translate([0,i+2.5,8]) rotate([0,90,0]) cylinder(sirka, d = diryRozdm, true,$fn=20);
-            translate([0,i+2.5,18]) rotate([0,90,0]) cylinder(sirka, d = diryRozdm, true,$fn=20);
+            translate([0,i,8]) rotate([0,90,0]) cylinder(sirka, d = diryRozdm, true,$fn=20);
+            translate([0,i,18]) rotate([0,90,0]) cylinder(sirka, d = diryRozdm, true,$fn=20);
+            
+            translate([0,3,2.5]){
+            translate([0,i,3]) rotate([0,90,0]) cylinder(sirka, d = diryRozdm, true,$fn=20);
+            translate([0,i,13]) rotate([0,90,0]) cylinder(sirka, d = diryRozdm, true,$fn=20);
+            translate([0,i,8]) rotate([0,90,0]) cylinder(sirka, d = diryRozdm, true,$fn=20);
+            translate([0,i,18]) rotate([0,90,0]) cylinder(sirka, d = diryRozdm, true,$fn=20);
+            }
+            
+            translate([0,0,2.5]){
+            translate([(sirka)/2,delkaRov-17,3]) rotate([-90,0,0]) cylinder(20, d = diryRozdm, true,$fn=20);
+                //translate([(sirka)/2,delkaRov-20,8]) rotate([-90,0,0]) cylinder(20, d = diryRozdm, true,$fn=20);
+                translate([(sirka)/2,delkaRov-17,13]) rotate([-90,0,0]) cylinder(20, d = diryRozdm, true,$fn=20);
+            translate([(sirka-velNast)/2,delkaRov-2-2,0-1]) cube([velNast,2,8]);
+            translate([(sirka-velNast)/2,delkaRov-2-2,10-1]) cube([velNast,2,8]);
+            }
+            ///translate([(sirka-velNast)/2,delkaRov-2-2,2]) cube([velNast,2,7]);
+            //translate([(sirka-velNast)/2,delkaRov-2-2,]) cube([velNast,2,7]);
+            
         }
         
         for(i=[diryStart:diryKrok*2:diryStop])
